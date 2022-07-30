@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/rishichalla67/I-Want/static/css/main.7c3e6d71.css",
+    "main.js": "/rishichalla67/I-Want/static/js/main.32dbfe22.js",
+    "index.html": "/rishichalla67/I-Want/index.html",
+    "main.7c3e6d71.css.map": "/rishichalla67/I-Want/static/css/main.7c3e6d71.css.map",
+    "main.32dbfe22.js.map": "/rishichalla67/I-Want/static/js/main.32dbfe22.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7c3e6d71.css",
+    "static/js/main.32dbfe22.js"
+  ]
+}
