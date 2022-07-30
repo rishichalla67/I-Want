@@ -1,35 +1,25 @@
-import { BrowserRouter as Router, Route, Switch, Redirect  } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import './App.css';
-import Login from './components/login';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import Home from './components/Home';
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './contexts/AuthContext' 
 
 function App() {
-  return (
-    <div className='App'>
-        <Router>
-                <Switch>
-                    {/* <AuthProvider> */}
-                        <Route exact path="/">
-                            <Redirect to="/Login" />
-                        </Route>
-                        <Route exact path="/Login" component={Login} />
-                        {/* <Route exact path="/SignUp" component={SignUp} />
-                        <Route exact path="/forgot-password" component={ForgotPassword} />
-                        <Route exact path="/simpleswap-affiliate-widget" component={SimpleSwap} />
-                        <Route exact path="/robo-advisor-NFA-lol" component={RoboAdvisor} /> */}
-                        {/* Private Routes */}
-                        {/* <PrivateRoute exact path="/Home" component={Home} />
-                        <PrivateRoute exact path="/Friends" component={Friends} />
-                        <PrivateRoute exact path="/global-chat" component={Chat} />
-                        <PrivateRoute exact path="/Add" component={playerForm} />
-                        <PrivateRoute exact path="/Profile" component={Profile} />
-                        <PrivateRoute exact path="/update-profile" component={UpdateProfile} />
-                        <PrivateRoute exact path="/Scorecard" component={ScoreCard} /> */}
-                        
-                    {/* </AuthProvider> */}
-                </Switch>
-        </Router>
-    </div>
-);
+    return (
+        <div className='App'>
+            <Router>
+                <AuthProvider>
+                    <Routes>
+                        <Route exact path='/' element={<PrivateRoute><Home/></PrivateRoute>}/>
+                        <Route path='/login' element={<Login/>} />
+                        <Route path='/signup' element={<Signup/>} />
+                    </Routes>
+                </AuthProvider>
+            </Router>
+        </div>
+    );
 }
 
 export default App;

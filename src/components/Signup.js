@@ -3,10 +3,11 @@ import { LockClosedIcon } from '@heroicons/react/solid'
 import { useAuth } from '../contexts/AuthContext'
 import {useNavigate} from 'react-router-dom'
 
-export default function Login() {
+export default function Signup() {
   const emailRef = useRef()
   const passwordRef = useRef()
-  const {login} = useAuth()
+  const passwordConfirmRef = useRef()
+  const {signup} = useAuth()
   const navigate = useNavigate()
 
   const [error, setError] = useState("")
@@ -14,12 +15,17 @@ export default function Login() {
 
     async function handleSubmit(e) {
         e.preventDefault()
+
+        if(passwordRef.current.value !== passwordConfirmRef.current.value){
+            return setError("Passwords do not match!")
+        }
         
         setError("")
         setLoading(true)
-        await login(emailRef.current.value, passwordRef.current.value)
+        await signup(emailRef.current.value, passwordRef.current.value)
         .then(() => navigate('/'))
         .catch(err => setError(err.message))
+        
         setLoading(false)
     }
 
@@ -27,13 +33,7 @@ export default function Login() {
   <div className="h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-300">
     <div className="max-w-md w-full space-y-8 ">
       <div>
-        <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">Sign in to your account</h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Join For Free Today!
-          </a>
-        </p>
+        <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">Sign Up</h2>
       </div>
       {error && <div role="alert">
         <div className="bg-red-500 text-white font-bold rounded-t px-4 py-2">
@@ -47,7 +47,7 @@ export default function Login() {
         <input type="hidden" name="remember" defaultValue="true" />
         <div className="rounded-md shadow-sm -space-y-px">
           <div>
-            <label htmlFor="email-address" className="sr-only">
+            <label htmlFor="email-address-signup" className="sr-only">
               Email address
             </label>
             <input
@@ -61,7 +61,7 @@ export default function Login() {
               placeholder="Email address"
             />
           </div>
-          <div>
+          <div className="pt-2">
             <label htmlFor="password" className="sr-only">
               Password
             </label>
@@ -70,12 +70,34 @@ export default function Login() {
               name="password"
               type="password"
               ref={passwordRef}
-              autoComplete="current-password"
               required
               className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Password"
             />
           </div>
+          <div className="pt-2">
+            <label htmlFor="password-confirmation" className="sr-only">
+              Password Confirmation
+            </label>
+            <input
+              id="password-confirmation"
+              name="password-confirmation"
+              type="password"
+              ref={passwordConfirmRef}
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Confirm Password"
+            />
+          </div>
+        </div>
+
+        <div>
+            <p className="mt-2 text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Log in here!
+            </a>
+            </p>
         </div>
 
         <div>
@@ -87,13 +109,8 @@ export default function Login() {
             <span className="absolute left-0 inset-y-0 flex items-center pl-3">
               <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true" />
             </span>
-            Sign in
+            Sign Up
           </button>
-        </div>
-        <div className="text-sm">
-          <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-            Forgot your password?
-          </a>
         </div>
       </form>
     </div>
