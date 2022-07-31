@@ -30,7 +30,7 @@ export default function Signup() {
     }
 
   return (
-  <div className="h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-300">
+  <div className="h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-sky-500 via-sky-400 to-sky-300">
     <div className="max-w-md w-full space-y-8 ">
       <div>
         <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">Sign Up</h2>

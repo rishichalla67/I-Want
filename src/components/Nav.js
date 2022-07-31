@@ -3,24 +3,6 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate} from 'react-router-dom'
-
-const user = {
-    name: 'Casey Takashi',
-    email: 'kc@example.com',
-    imageUrl:
-      'https://images.unsplash.com/photo-1615497001839-b0a0eac3274c?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8Y3V0ZSUyMGNhdHxlbnwwfHwwfHw%3D&w=1000&q=80',
-  }
-  
-  const navigation = [
-    { name: 'Feed', href: '#', current: true },
-    
-  ]
-  
-  const userNavigation = [
-    { name: 'Your Profile', href: '#' },
-    { name: 'Settings', href: '#' },
-    { name: 'Sign out', href: '/login' , onClick: 'handleLogout'},
-  ]
   
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -43,9 +25,21 @@ export default function Nav() {
   const navigateProfile = () => {
     navigate('/profile');
   }  
+
+  const userNavigation = [
+    { name: 'Profile', href: '/profile', },
+    { name: 'Settings', href: '#',  },
+    { name: 'Sign out', onClick: handleLogout},
+  ]
+
+  const navigation = [
+    { name: 'Feed', href: '#', current: true },
+    { name: 'Friends', href: '#', current: true },
+
+  ]
   return (
     <>
-        <Disclosure as="nav" className="bg-sky-300">
+        <Disclosure as="nav" className="bg-gradient-to-r from-sky-300 via-sky-400 to-sky-500">
           {({ open }) => (
             <>
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,7 +61,7 @@ export default function Nav() {
                             className={classNames(
                               item.current
                                 ? 'bg-gray-900 text-white'
-                                : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                : 'text-slate-900 hover:bg-gray-700 hover:text-white',
                               'px-3 py-2 rounded-md text-sm font-medium'
                             )}
                             aria-current={item.current ? 'page' : undefined}
@@ -82,7 +76,7 @@ export default function Nav() {
                     <div className="ml-4 flex items-center md:ml-6">
                       <button
                         type="button"
-                        className="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                        className="bg-gray-800 p-1 rounded-full text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
                       >
                         <span className="sr-only">View notifications</span>
                         <BellIcon className="h-6 w-6" aria-hidden="true" />
@@ -93,7 +87,7 @@ export default function Nav() {
                         <div>
                           <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                             <span className="sr-only">Open user menu</span>
-                            <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />
+                            <img className="h-8 w-8 rounded-full" src={"https://exploringbits.com/wp-content/uploads/2022/01/animal-pfp-11.jpg?ezimgfmt=rs:352x281/rscb3/ng:webp/ngcb3"} alt="" />
                           </Menu.Button>
                         </div>
                         <Transition
@@ -105,17 +99,22 @@ export default function Nav() {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
-                          <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hover:text-white hover:bg-black ">
-                            {/* <li>
-                                <button onClick={navigateProfile}>
-                                    My Profile
-                                </button>
-                            </li>
-                            <li className= > */}
-                                <button onClick={handleLogout}>
-                                    Log Out
-                                </button>
-                            {/* </li> */}
+                          <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hover:text-white">
+                          {userNavigation.map((item) => (
+                                <Disclosure.Button
+                                key={item.name}
+                                as="a"
+                                onClick={item.onClick}
+                                href={item.href}
+                                className={classNames(
+                                    item.current ? 'bg-gray-900 text-white' : 'text-slate-900 hover:bg-gray-700 hover:text-white',
+                                    'block px-3 py-2 rounded-md text-base font-medium'
+                                )}
+                                aria-current={item.current ? 'page' : undefined}
+                                >
+                                {item.name}
+                                </Disclosure.Button>
+                            ))}
                           </Menu.Items>
                         </Transition>
                       </Menu>
@@ -143,7 +142,7 @@ export default function Nav() {
                       as="a"
                       href={item.href}
                       className={classNames(
-                        item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                        item.current ? 'bg-gray-900 text-white' : 'text-slate-900 hover:bg-gray-700 hover:text-white',
                         'block px-3 py-2 rounded-md text-base font-medium'
                       )}
                       aria-current={item.current ? 'page' : undefined}
@@ -155,11 +154,7 @@ export default function Nav() {
                 <div className="pt-4 pb-3 border-t border-gray-700">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
-                      <img className="h-10 w-10 rounded-full" src={user.imageUrl} alt="" />
-                    </div>
-                    <div className="ml-3">
-                      <div className="text-base font-medium leading-none text-white">{user.name}</div>
-                      <div className="text-sm font-medium leading-none text-gray-400">{currentUser.email}</div>
+                      <img className="h-10 w-10 rounded-full" src={ "https://exploringbits.com/wp-content/uploads/2022/01/animal-pfp-11.jpg?ezimgfmt=rs:352x281/rscb3/ng:webp/ngcb3" } alt="" />
                     </div>
                     <button
                       type="button"
@@ -175,7 +170,7 @@ export default function Nav() {
                         key={item.name}
                         as="a"
                         href={item.href}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700"
+                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-white hover:bg-gray-700"
                       >
                         {item.name}
                       </Disclosure.Button>

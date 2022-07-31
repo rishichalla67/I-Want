@@ -24,13 +24,13 @@ export default function Login() {
     }
 
   return (
-  <div className="h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-sky-300">
+  <div className="h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-sky-300 via-sky-400 to-sky-500">
     <div className="max-w-md w-full space-y-8 ">
       <div>
         <h2 className="mt-6 text-center text-4xl font-extrabold text-gray-900">Sign in to your account</h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{' '}
-          <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-700">
             Join For Free Today!
           </a>
         </p>
@@ -91,7 +91,7 @@ export default function Login() {
           </button>
         </div>
         <div className="text-sm">
-          <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <a href="#" className="font-medium text-indigo-600 hover:text-indigo-700">
             Forgot your password?
           </a>
         </div>
