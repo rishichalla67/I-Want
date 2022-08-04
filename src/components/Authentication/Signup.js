@@ -1,7 +1,8 @@
 import React, {useRef, useState} from 'react';
 import { LockClosedIcon } from '@heroicons/react/solid'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
 import {useNavigate} from 'react-router-dom'
+import {db} from '../../firebase'
 
 export default function Signup() {
   const emailRef = useRef()
@@ -13,6 +14,18 @@ export default function Signup() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const createUser = (e) => {
+    db.collection("users").add({
+      email : e,
+    }).then((docRef) => {
+      console.log("Document written with ID: ", docRef.id)
+      db.collection("users").doc(docRef.id).update({
+        id: docRef.id,
+      })
+  })
+    .catch(err => setError(err.message));
+  }
+
     async function handleSubmit(e) {
         e.preventDefault()
 
@@ -23,7 +36,10 @@ export default function Signup() {
         setError("")
         setLoading(true)
         await signup(emailRef.current.value, passwordRef.current.value)
-        .then(() => navigate('/'))
+        .then(() => {
+          createUser(emailRef.current.value)
+          navigate('/')
+        })
         .catch(err => setError(err.message))
         
         setLoading(false)

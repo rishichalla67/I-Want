@@ -1,27 +1,82 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import Nav from './Nav'
+import { useAuth } from '../contexts/AuthContext'
+import {db} from '../firebase'
+import {useNavigate} from 'react-router-dom'
 
 export default function EditProfile() {
-    const [profileChanged, setProfileChanged] = useState(true)
+    const bioRef = useRef()
+    const firstNameRef = useRef()
+    const lastNameRef = useRef()
+    const streetAddressRef = useRef()
+    const cityRef = useRef()
+    const countryRef = useRef()
+    const stateRef = useRef()
+    const postalCodeRef = useRef()
+    const {currentUser} = useAuth()
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
+    const [user, setUser] = useState([])
+    const navigate = useNavigate()
 
+    useEffect(() => {
+      getUsers()
+    }, [])
+    
+    const getUsers=async()=>{
+      const response=db.collection('users');
+      const data=await response.get();
+      data.docs.forEach(item=>{
+        if(item.data().email === currentUser.email){
+          setUser(item.data())
+        }
+      })
+      
+    }
+
+
+    const updateUser = () => {
+      console.log(user.id)
+      db.collection("users").doc(user.id).update({
+        bio : bioRef.current.value,
+        firstName : firstNameRef.current.value,
+        lastName : lastNameRef.current.value,
+        street : streetAddressRef.current.value,
+        city : cityRef.current.value,
+        country : countryRef.current.value,
+        state : stateRef.current.value,
+        postalCode : postalCodeRef.current.value
+      }).then(() => {
+        navigate('/profile')
+      }).catch(err => setError(err.message));
+    }
+
+    async function saveProfile(e) {
+      e.preventDefault()
+      
+      setError("")
+      setLoading(true)
+      updateUser()
+      setLoading(false)
+  }
+    
   return (
     <>
         <Nav/>
-        <div>
-            {/* <div className="md:grid md:grid-cols-3 md:gap-6"> */}
-            {/* <div className="md:col-span-1 md:mt-5">
-                <div className="px-4 sm:px-0">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">Profile</h3>
-                <p className="mt-1 text-sm text-gray-600 px-3">
-                    This information will be displayed publicly so be careful what you share.
-                </p>
+        <div className='pt-10 grid place-items-center'>
+            <div className="md:max-w-7xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center ">
+                <div className="px-4 py-5 sm:px-6">
+                  <h3 className="text-xl leading-6 font-medium text-gray-900">Profile</h3>
                 </div>
-            </div> */}
-            <div>
-                <h2 className="text-3xl font-medium pt-4">Edit Profile</h2>
-            </div>
-            <div className="mt-5 md:mt-2 md:col-span-2">
-                <form action="#" >
+                {error && <div role="alert">
+                  <div className="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+                      Error
+                  </div>
+                  <div className="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+                      <p>{error}</p>
+                  </div>
+                </div>}
+                <form action="#" onSubmit={saveProfile}>
                 <div className="shadow sm:rounded-md sm:overflow-hidden">
                     <div className="px-4 py-5 bg-white space-y-6 sm:p-6">
 
@@ -50,16 +105,17 @@ export default function EditProfile() {
 
                     <div>
                         <label htmlFor="about" className="block text-sm font-medium text-gray-700">
-                        About
+                        Bio
                         </label>
                         <div className="mt-1">
                         <textarea
                             id="about"
                             name="about"
+                            ref={bioRef}
                             rows={3}
                             className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                            placeholder="Share something about yourself..."
-                            defaultValue={''}
+                            placeholder={user.bio && user.bio}
+                            defaultValue={user.bio && user.bio}
                         />
                         </div>
                     </div>
@@ -74,7 +130,9 @@ export default function EditProfile() {
                         type="text"
                         name="first-name"
                         id="first-name"
-                        autoComplete="given-name"
+                        ref={firstNameRef}
+                        placeholder={user.firstName && user.firstName}
+                        defaultValue={user.firstName && user.firstName}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -87,7 +145,9 @@ export default function EditProfile() {
                         type="text"
                         name="last-name"
                         id="last-name"
-                        autoComplete="family-name"
+                        ref={lastNameRef}
+                        placeholder={user.lastName && user.lastName}
+                        defaultValue={user.lastName && user.lastName}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -100,7 +160,9 @@ export default function EditProfile() {
                         type="text"
                         name="street-address"
                         id="street-address"
-                        autoComplete="street-address"
+                        ref={streetAddressRef}
+                        placeholder={user.street && user.street}
+                        defaultValue={user.street && user.street}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -113,7 +175,9 @@ export default function EditProfile() {
                         type="text"
                         name="city"
                         id="city"
-                        autoComplete="address-level2"
+                        ref={cityRef}
+                        placeholder={user.city && user.city}
+                        defaultValue={user.city && user.city}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -126,7 +190,9 @@ export default function EditProfile() {
                         type="text"
                         name="region"
                         id="region"
-                        autoComplete="address-level1"
+                        ref={stateRef}
+                        placeholder={user.state && user.state}
+                        defaultValue={user.state && user.state}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -139,7 +205,9 @@ export default function EditProfile() {
                         type="text"
                         name="postal-code"
                         id="postal-code"
-                        autoComplete="postal-code"
+                        ref={postalCodeRef}
+                        placeholder={user.postalCode && user.postalCode}
+                        defaultValue={user.postalCode && user.postalCode}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </div>
@@ -151,7 +219,9 @@ export default function EditProfile() {
                       <input
                         id="country"
                         name="country"
-                        autoComplete="country-name"
+                        ref={countryRef}
+                        placeholder={user.country && user.country}
+                        defaultValue={user.country && user.country}
                         className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       >
                         
@@ -163,7 +233,7 @@ export default function EditProfile() {
                     <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
                     <button
                         type="submit"
-                        disabled={{profileChanged}}
+                        disabled={loading}
                         className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                         Save
