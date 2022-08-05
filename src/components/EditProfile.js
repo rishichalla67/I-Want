@@ -2,10 +2,13 @@ import React, {useState, useEffect, useRef} from 'react'
 import Nav from './Nav'
 import { useAuth } from '../contexts/AuthContext'
 import {db} from '../firebase'
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import {useNavigate} from 'react-router-dom'
 
 export default function EditProfile() {
+    const pfpBaseURL = "https://console.firebase.google.com/project/i-want-dev-323a2/storage/i-want-dev-323a2.appspot.com/files"
     const bioRef = useRef()
+    const fileUploadRef = useRef()
     const firstNameRef = useRef()
     const lastNameRef = useRef()
     const streetAddressRef = useRef()
@@ -14,7 +17,10 @@ export default function EditProfile() {
     const stateRef = useRef()
     const postalCodeRef = useRef()
     const {currentUser} = useAuth()
+    const storage = getStorage()
     const [error, setError] = useState('')
+    const [photo, setPhoto] = useState()
+    const [photoURL, setPhotoURL] = useState('')
     const [loading, setLoading] = useState(false)
     const [user, setUser] = useState([])
     const navigate = useNavigate()
@@ -34,10 +40,24 @@ export default function EditProfile() {
       
     }
 
+    async function uploadPhoto(photoFile) {
+        console.log(photoFile)
+        const fileRef = ref(storage, user.id)
+        const snapshot = await uploadBytes(fileRef, photoFile).catch(err => setError(err.message))
+        await getDownloadURL(fileRef)
+        .then((URL) => {
+          setPhotoURL(URL)
+          console.log(photo)
+          
+        })
+        
+    }
 
-    const updateUser = () => {
+
+    const updateUser = (URL) => {
       console.log(user.id)
       db.collection("users").doc(user.id).update({
+        photo: URL,
         bio : bioRef.current.value,
         firstName : firstNameRef.current.value,
         lastName : lastNameRef.current.value,
@@ -56,7 +76,7 @@ export default function EditProfile() {
       
       setError("")
       setLoading(true)
-      updateUser()
+      updateUser(photoURL)
       setLoading(false)
   }
     
@@ -85,7 +105,8 @@ export default function EditProfile() {
                         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                         <div className="space-y-1 text-center">
                         <span className="inline-block h-12 w-12 rounded-full overflow-hidden ">
-                            <img className="h-12 w-12 rounded-full" src={ "https://exploringbits.com/wp-content/uploads/2022/01/animal-pfp-11.jpg?ezimgfmt=rs:352x281/rscb3/ng:webp/ngcb3" } alt="" />
+                            <img className="h-12 w-12 rounded-full" disabled={user.photo === '' && photoURL !== ''} src={ user.photo } alt="" />
+                            <img className="h-12 w-12 rounded-full" disabled={photoURL !== ''} src={ photoURL } alt="" />
                         </span>
                         <div className="flex text-sm text-gray-600">
                         <label
@@ -94,7 +115,10 @@ export default function EditProfile() {
                         >
                             <span className="hidden md:block">Upload a file</span>
                             <span className="pl-6 md:hidden">Upload a file</span>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                            
+                            <input id="file-upload" name="file-upload" type="file" accept=".png" onChange={(e) => {
+                              uploadPhoto(e.target.files[0])
+                              }} className="sr-only" />
                         </label>
                         <p className="pl-1 hidden md:block">or drag and drop</p>
                         </div>

@@ -1,7 +1,8 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { useAuth } from '../contexts/AuthContext'
+import { db } from '../firebase'
 import { useNavigate} from 'react-router-dom'
   
   function classNames(...classes) {
@@ -14,6 +15,23 @@ export default function Nav() {
   const navigate = useNavigate()
   const {currentUser, logout} = useAuth()
   const [error, setError] = useState()
+  const [user, setUser] = useState([])
+
+  useEffect(() => {
+    getUsers()
+  }, [])
+  
+  const getUsers=async()=>{
+    const response=db.collection('users');
+    const data=await response.get();
+    data.docs.forEach(item=>{
+      if(item.data().email === currentUser.email){
+        setUser(item.data())
+      }
+    })
+    
+  }
+
   async function handleLogout() {
     setError("")
 
@@ -91,7 +109,7 @@ export default function Nav() {
                         <div>
                           <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                             <span className="sr-only">Open user menu</span>
-                            <img className="h-8 w-8 rounded-full" src={"https://exploringbits.com/wp-content/uploads/2022/01/animal-pfp-11.jpg?ezimgfmt=rs:352x281/rscb3/ng:webp/ngcb3"} alt="" />
+                            <img className="h-8 w-8 rounded-full" src={user.photo && user.photo} alt="" />
                           </Menu.Button>
                         </div>
                         <Transition
