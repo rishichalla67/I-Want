@@ -6,7 +6,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import {useNavigate} from 'react-router-dom'
 
 export default function EditProfile() {
-    const pfpBaseURL = "https://console.firebase.google.com/project/i-want-dev-323a2/storage/i-want-dev-323a2.appspot.com/files"
+    const pfpFilePath = "https://firebasestorage.googleapis.com/v0/b/i-want-dev-323a2.appspot.com/o/pfp%2F{}?alt=media&token=1db3c9ab-ed2b-4920-83a8-31fc9cd33fb5"
     const bioRef = useRef()
     const fileUploadRef = useRef()
     const firstNameRef = useRef()
@@ -19,7 +19,6 @@ export default function EditProfile() {
     const {currentUser} = useAuth()
     const storage = getStorage()
     const [error, setError] = useState('')
-    const [photo, setPhoto] = useState()
     const [photoURL, setPhotoURL] = useState('')
     const [loading, setLoading] = useState(false)
     const [user, setUser] = useState([])
@@ -41,15 +40,16 @@ export default function EditProfile() {
     }
 
     async function uploadPhoto(photoFile) {
+        setLoading(true)
         console.log(photoFile)
-        const fileRef = ref(storage, user.id)
-        const snapshot = await uploadBytes(fileRef, photoFile).catch(err => setError(err.message))
-        await getDownloadURL(fileRef)
-        .then((URL) => {
-          setPhotoURL(URL)
-          console.log(photo)
-          
-        })
+        const fileRef = ref(storage, 'pfp' + '/' + user.id)
+        await uploadBytes(fileRef, photoFile).then(
+            await getDownloadURL(fileRef)
+            .then(function(url){
+              setPhotoURL(url)
+              setLoading(false)
+            })
+          ).catch(err => setError(err.message))
         
     }
 
@@ -57,15 +57,15 @@ export default function EditProfile() {
     const updateUser = (URL) => {
       console.log(user.id)
       db.collection("users").doc(user.id).update({
-        photo: URL,
-        bio : bioRef.current.value,
-        firstName : firstNameRef.current.value,
-        lastName : lastNameRef.current.value,
-        street : streetAddressRef.current.value,
-        city : cityRef.current.value,
-        country : countryRef.current.value,
-        state : stateRef.current.value,
-        postalCode : postalCodeRef.current.value
+        photo: URL!==''? URL :user.photo,
+        bio : bioRef.current.value!==''? bioRef.current.value :user.bio,
+        firstName : firstNameRef.current.value!==''? firstNameRef.current.value :user.firstName,
+        lastName : lastNameRef.current.value!==''? lastNameRef.current.value :user.lastName,
+        street : streetAddressRef.current.value!==''? streetAddressRef.current.value :user.street,
+        city : cityRef.current.value!==''? cityRef.current.value :user.city,
+        country : countryRef.current.value!==''? countryRef.current.value :user.country,
+        state : stateRef.current.value!==''? stateRef.current.value :user.state,
+        postalCode : postalCodeRef.current.value!==''? postalCodeRef.current.value :user.postalCode
       }).then(() => {
         navigate('/profile')
       }).catch(err => setError(err.message));
@@ -102,28 +102,29 @@ export default function EditProfile() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Photo</label>
-                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div className="space-y-1 text-center">
-                        <span className="inline-block h-12 w-12 rounded-full overflow-hidden ">
-                            <img className="h-12 w-12 rounded-full" disabled={user.photo === '' && photoURL !== ''} src={ user.photo } alt="" />
-                            <img className="h-12 w-12 rounded-full" disabled={photoURL !== ''} src={ photoURL } alt="" />
-                        </span>
-                        <div className="flex text-sm text-gray-600">
-                        <label
-                            htmlFor="file-upload"
-                            className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                        >
-                            <span className="hidden md:block">Upload a file</span>
-                            <span className="pl-6 md:hidden">Upload a file</span>
-                            
-                            <input id="file-upload" name="file-upload" type="file" accept=".png" onChange={(e) => {
-                              uploadPhoto(e.target.files[0])
-                              }} className="sr-only" />
-                        </label>
-                        <p className="pl-1 hidden md:block">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                        </div>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md" disabled={loading}>
+                          <div className="space-y-1 text-center">
+                            <span className="inline-block h-12 w-12 rounded-full overflow-hidden ">
+                                <img className="h-12 w-12 rounded-full" disabled={user.photo === '' && photoURL !== ''} src={ user.photo } alt="" />
+                                <img className="h-12 w-12 rounded-full" disabled={photoURL !== ''} src={ photoURL } alt="" />
+                            </span>
+                            <div className="flex text-sm text-gray-600">
+                              <label
+                                  htmlFor="file-upload"
+                                  className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+                              >
+                                  <span className="hidden md:block">Upload a file</span>
+                                  <span className="pl-6 md:hidden">Upload a file</span>
+                                  
+                                  <input id="file-upload" name="file-upload" type="file" accept=".png" onChange={(e) => {
+                                    uploadPhoto(e.target.files[0])
+                                    console.log(e.target.files)
+                                    }} className="sr-only" />
+                              </label>
+                              <p className="pl-1 hidden md:block">or drag and drop</p>
+                            </div>
+                            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                          </div>
                         </div>
                     </div>
 
@@ -137,9 +138,9 @@ export default function EditProfile() {
                             name="about"
                             ref={bioRef}
                             rows={3}
-                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md placeholder-gray-400"
                             placeholder={user.bio && user.bio}
-                            defaultValue={user.bio && user.bio}
+                            // defaultValue={user.bio && user.bio}
                         />
                         </div>
                     </div>
@@ -156,8 +157,8 @@ export default function EditProfile() {
                         id="first-name"
                         ref={firstNameRef}
                         placeholder={user.firstName && user.firstName}
-                        defaultValue={user.firstName && user.firstName}
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        // defaultValue={user.firstName && user.firstName}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
 
@@ -171,8 +172,8 @@ export default function EditProfile() {
                         id="last-name"
                         ref={lastNameRef}
                         placeholder={user.lastName && user.lastName}
-                        defaultValue={user.lastName && user.lastName}
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        // defaultValue={user.lastName && user.lastName}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
 
@@ -186,8 +187,8 @@ export default function EditProfile() {
                         id="street-address"
                         ref={streetAddressRef}
                         placeholder={user.street && user.street}
-                        defaultValue={user.street && user.street}
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        // defaultValue={user.street && user.street}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
 
@@ -201,8 +202,8 @@ export default function EditProfile() {
                         id="city"
                         ref={cityRef}
                         placeholder={user.city && user.city}
-                        defaultValue={user.city && user.city}
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        // defaultValue={user.city && user.city}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
 
@@ -216,8 +217,8 @@ export default function EditProfile() {
                         id="region"
                         ref={stateRef}
                         placeholder={user.state && user.state}
-                        defaultValue={user.state && user.state}
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        // defaultValue={user.state && user.state}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
 
@@ -231,8 +232,8 @@ export default function EditProfile() {
                         id="postal-code"
                         ref={postalCodeRef}
                         placeholder={user.postalCode && user.postalCode}
-                        defaultValue={user.postalCode && user.postalCode}
-                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                        // defaultValue={user.postalCode && user.postalCode}
+                        className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
                   </div>
@@ -245,8 +246,8 @@ export default function EditProfile() {
                         name="country"
                         ref={countryRef}
                         placeholder={user.country && user.country}
-                        defaultValue={user.country && user.country}
-                        className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        // defaultValue={user.country && user.country}
+                        className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400"
                       >
                         
                       </input>
