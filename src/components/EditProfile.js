@@ -6,9 +6,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import {useNavigate} from 'react-router-dom'
 
 export default function EditProfile() {
-    const pfpFilePath = "https://firebasestorage.googleapis.com/v0/b/i-want-dev-323a2.appspot.com/o/pfp%2F{}?alt=media&token=1db3c9ab-ed2b-4920-83a8-31fc9cd33fb5"
     const bioRef = useRef()
-    const fileUploadRef = useRef()
     const firstNameRef = useRef()
     const lastNameRef = useRef()
     const streetAddressRef = useRef()

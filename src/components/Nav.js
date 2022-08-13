@@ -53,7 +53,7 @@ export default function Nav() {
   // Add here for more nav bar tabs
   const navigation = [
     { name: 'Feed', href: '/', current: true },
-    { name: 'Friends', href: '', current: true },
+    { name: 'Friends', href: '/Friends', current: true },
 
   ]
 
@@ -174,18 +174,6 @@ export default function Nav() {
                   ))}
                 </div>
                 <div className="pt-4 pb-3 border-t border-gray-700">
-                  {/* <div className="flex items-center px-5">
-                    <div className="flex-shrink-0">
-                      <img className="h-10 w-10 rounded-full" src={ "https://exploringbits.com/wp-content/uploads/2022/01/animal-pfp-11.jpg?ezimgfmt=rs:352x281/rscb3/ng:webp/ngcb3" } alt="" />
-                    </div>
-                    <button
-                      type="button"
-                      className="ml-auto bg-gray-800 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-                    >
-                      <span className="sr-only">View notifications</span>
-                      <BellIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                  </div> */}
                   <div className="px-2 space-y-1">
                     {userNavigation.map((item) => (
                       <Disclosure.Button
@@ -204,6 +192,18 @@ export default function Nav() {
             </>
           )}
         </Disclosure>
+        <div role="alert" hidden={user.firstName !== ''}>
+          <div className="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
+              <p>Please update your profile to include your first name!</p>
+              <p>This allows you to be added as a friend</p>
+              <div className="pt-2">
+                    <a href="/edit-profile" className="inline-flex justify-center w- py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                      Edit Profile
+                    </a>
+              </div>
+                    
+          </div>
+        </div>
     </>
   )
 }

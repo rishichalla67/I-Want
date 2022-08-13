@@ -1,9 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Nav from '../components/Nav'
 import { useAuth } from '../contexts/AuthContext'
+import {db} from '../firebase'
 
 export default function Home() {
-    const {currentUser, user} = useAuth()
+    const {currentUser} = useAuth()
+    const [user, setUser] = useState([])
+
+  useEffect(() => {
+    getUsers()    
+  }, [])
+
+  const getUsers=async()=>{
+    const response=db.collection('users');
+    const data=await response.get();
+    data.docs.forEach(item=>{
+      if(item.data().email === currentUser.email){
+        setUser(item.data())
+      }
+    })
+    
+  }
     
   return (
     <>

@@ -8,6 +8,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import EditProfile from './components/EditProfile';
 import Profile from './components/Profile';
 import ForgotPassword from './components/Authentication/ForgotPassword';
+import Friends from './components/Friends';
 
 function App() {
     return (
@@ -19,6 +20,7 @@ function App() {
                         <Route exact path='/' element={<PrivateRoute><Home/></PrivateRoute>}/>
                         <Route path='/profile' element={<PrivateRoute><Profile/></PrivateRoute>} />
                         <Route path='/edit-profile' element={<PrivateRoute><EditProfile/></PrivateRoute>} />
+                        <Route path='/friends' element={<PrivateRoute><Friends/></PrivateRoute>} />
                         {/* Public Routes */}
                         <Route path='/login' element={<Login/>} />
                         <Route path='/signup' element={<Signup/>} />
