@@ -3,6 +3,7 @@ import { LockClosedIcon } from '@heroicons/react/solid'
 import { useAuth } from '../../contexts/AuthContext'
 import {useNavigate} from 'react-router-dom'
 import {db} from '../../firebase'
+import {User} from '../../Classes/User'
 
 export default function Signup() {
   const emailRef = useRef()
@@ -18,10 +19,7 @@ export default function Signup() {
     db.collection("users").add({
       email : e,
     }).then((docRef) => {
-      console.log("Document written with ID: ", docRef.id)
-      db.collection("users").doc(docRef.id).update({
-        id: docRef.id,
-      })
+      db.collection("users").doc(docRef.id).update(User(docRef.id))
   })
     .catch(err => setError(err.message));
   }

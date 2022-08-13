@@ -53,9 +53,8 @@ export default function EditProfile() {
 
 
     const updateUser = (URL) => {
-      console.log(user.id)
       db.collection("users").doc(user.id).update({
-        photo: URL!==''? URL :user.photo,
+        photo: user.photo ? user.photo : URL,
         bio : bioRef.current.value!==''? bioRef.current.value :user.bio,
         firstName : firstNameRef.current.value!==''? firstNameRef.current.value :user.firstName,
         lastName : lastNameRef.current.value!==''? lastNameRef.current.value :user.lastName,
