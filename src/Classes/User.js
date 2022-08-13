@@ -10,6 +10,7 @@ export const User = (id) => {
         country: '',
         postalCode: '',
         state: '',
-        street: ''
+        street: '',
+        friends: []
     }
 }
