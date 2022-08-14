@@ -13,6 +13,7 @@ export function FirestoreProvider( { children } ) {
     const {currentUser} = useAuth()
     const [activeUser, setActiveUser] = useState([])
     const [allUsers, setAllUsers] = useState([])
+    const [notifications, setNotifications] = useState([])
     const [loading, setLoading] = useState(true)
 
 
@@ -24,13 +25,15 @@ export function FirestoreProvider( { children } ) {
             snapshot.docs.forEach((user)=>{
                 if(user.data().email === currentUser.email){
                     setActiveUser(user.data())
+                    setNotifications(user.data().notifications)
                 }
               tempUsers.push({
                 id: user.data().id,
                 firstName: user.data().firstName?user.data().firstName:'',
                 lastName: user.data().lastName?user.data().lastName:'',
                 photo: user.data().photo?user.data().photo:'',
-                friends: user.data().friends?user.data().friends:[]
+                friends: user.data().friends?user.data().friends:[],
+                notifications: user.data().notifications?user.data().notifications:[]
               })
               
             })
@@ -66,7 +69,8 @@ export function FirestoreProvider( { children } ) {
     const value = { 
         allUsers,
         activeUser,
-        getUsers
+        getUsers,
+        notifications
     }
 
   return (

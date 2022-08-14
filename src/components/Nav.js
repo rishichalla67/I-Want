@@ -16,11 +16,12 @@ export default function Nav() {
   const navigate = useNavigate()
   const {currentUser, logout} = useAuth()
   const [error, setError] = useState()
-  const { allUsers, activeUser, getUsers} = useFirestore()
+  const { allUsers, activeUser, getUsers, notifications} = useFirestore()
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     getUsers()
+    console.log(notifications)
     // if(activeUser.id){
     //   checkForNotifications()
     // }
@@ -86,9 +87,9 @@ export default function Nav() {
                     </p>
                   })} */}
                   <div>
-                    {activeUser.notifications.map(function(notif){
+                    {notifications.map(function(notif){
                       <p>
-                        {console.log(notif.requesterID)} 
+                        test{console.log(notif)} 
                         {notif.requesterID}
                       </p>
                     })}
