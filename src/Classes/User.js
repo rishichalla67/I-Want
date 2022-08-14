@@ -11,6 +11,8 @@ export const User = (id) => {
         postalCode: '',
         state: '',
         street: '',
-        friends: []
+        friends: [],
+        notifications: [],
+        wishlist: []
     }
 }

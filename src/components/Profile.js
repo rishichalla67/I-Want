@@ -2,27 +2,28 @@ import React, {useEffect, useState} from 'react'
 import Nav from './Nav'
 import { useAuth } from '../contexts/AuthContext'
 import {db} from '../firebase'
+import { useFirestore} from '../contexts/FirestoreContext'
 
 
 export default function Profile() {
   const {currentUser} = useAuth()
-  const [user, setUser] = useState([])
+  const {getUsers, activeUser, allUsers} = useFirestore()
 
   useEffect(() => {
     getUsers()  
   }, [])
 
-  const getUsers=async()=>{
-    const response=db.collection('users');
-    const data=await response.get();
-    data.docs.forEach(item=>{
-      if(item.data().email === currentUser.email){
-        setUser(item.data())
-      }
-    })
-  }
+  // const getUsers=async()=>{
+  //   const response=db.collection('users');
+  //   const data=await response.get();
+  //   data.docs.forEach(item=>{
+  //     if(item.data().email === currentUser.email){
+  //       setUser(item.data())
+  //     }
+  //   })
+  // }
 
-  if(!user.id){
+  if(!activeUser.id){
     return(
       <div className="flex items-center justify-center space-x-2">
         <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
@@ -44,28 +45,28 @@ export default function Profile() {
               <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500 flex items-center justify-center">Profile Picture</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 flex items-center justify-center">
-                    <img className="h-40 w-40 " disabled={user.photo === ''} src={ user.photo } alt="" />
+                    <img className="h-40 w-40 " disabled={activeUser.photo === ''} src={ activeUser.photo } alt="" />
                   </dd>
                 </div>
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Full name</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {user.firstName} {user.lastName}
+                    {activeUser.firstName} {activeUser.lastName}
                   </dd>
                 </div>
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Email address</dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.email}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{activeUser.email}</dd>
                 </div>
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Bio</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {user.bio}
+                      {activeUser.bio}
                   </dd>
                 </div>
                 <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Shipping Address</dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user.street} {user.city} {user.state} {user.postalCode} {user.country}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{activeUser.street} {activeUser.city} {activeUser.state} {activeUser.postalCode} {activeUser.country}</dd>
                 </div>
               </dl>
             </div>

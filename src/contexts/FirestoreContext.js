@@ -22,6 +22,9 @@ export function FirestoreProvider( { children } ) {
           if(snapshot.docs.length > 0){
             const tempUsers = []
             snapshot.docs.forEach((user)=>{
+                if(user.data().email === currentUser.email){
+                    setActiveUser(user.data())
+                }
               tempUsers.push({
                 id: user.data().id,
                 firstName: user.data().firstName?user.data().firstName:'',
@@ -49,9 +52,7 @@ export function FirestoreProvider( { children } ) {
         })
         return temp
       }
-    // function getUser(){
-    //     getUsers()
-    // }
+
 
     useEffect(() => {
         if(allUsers.length === 0){

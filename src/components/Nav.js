@@ -17,14 +17,13 @@ export default function Nav() {
   const {currentUser, logout} = useAuth()
   const [error, setError] = useState()
   const { allUsers, activeUser, getUsers} = useFirestore()
-  const [notifications, setNotifications] = useState([])
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     getUsers()
-    if(activeUser.id){
-      checkForNotifications()
-    }
+    // if(activeUser.id){
+    //   checkForNotifications()
+    // }
   }, [])
   
   async function checkForNotifications() {
@@ -79,9 +78,27 @@ export default function Nav() {
                   </h3>
                 </div>
                 {/*body*/}
-                <div className="relative p-6 flex-auto">
-                  
-                </div>
+                {/* <div className="relative p-6 flex-auto"> */}
+                  {/* {activeUser.notifications.forEach(function(notif){
+                    console.log(notif);
+                    <p>
+                        notif.message from notif.requesterID
+                    </p>
+                  })} */}
+                  <div>
+                    {activeUser.notifications.map(function(notif){
+                      <p>
+                        {console.log(notif.requesterID)} 
+                        {notif.requesterID}
+                      </p>
+                    })}
+                  </div>
+                  <div className="relative p-6 flex-auto">
+                    <p className="my-4 text-slate-500 text-lg leading-relaxed">
+                      
+                    </p>
+                  </div>
+                {/* </div> */}
                 {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                   <button

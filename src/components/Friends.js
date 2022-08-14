@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useFirestore, getUsers } from '../contexts/FirestoreContext'
 import {db} from '../firebase'
 import { arrayRemove, arrayUnion} from 'firebase/firestore'
+import { Notification } from '../Classes/Notification'
 
 
 export default function Friends() {
@@ -20,7 +21,17 @@ export default function Friends() {
     await db.collection("users").doc(activeUser.id).update({
       friends: arrayUnion(friendID)
     }).then(() =>{
-      console.log('Added ' + friendID + 'to friends list')
+      getUsers()
+      updateNotification(friendID)
+    })
+    
+  }
+
+  async function updateNotification(friendID){
+    await db.collection("users").doc(friendID).update({
+      notifications: arrayUnion(Notification(activeUser.id))
+    }).then(() =>{
+      console.log('Requested ' + friendID + 'to friends list')
       getUsers()
     })
   }
@@ -54,7 +65,6 @@ export default function Friends() {
             </div>
             {error && error}
             {allUsers && allUsers.map((user) => {
-                console.log(allUsers)
                 if(user.firstName === '' || !activeUser.friends.includes(user.id)){return}
                 return(
                 <div key={user.id} className="pt-10 grid place-items-center pb-5">
@@ -84,7 +94,6 @@ export default function Friends() {
                 <h3 className="text-4xl leading-6 font-medium text-gray-900">Add Friends</h3>
               </div>
               {allUsers && allUsers.map((user) => {
-                console.log(user.firstName)
                 if(user.firstName === '' || activeUser.friends.includes(user.id)){return}
                 return(
                 <div key={user.id} className="pt-10 grid place-items-center">
