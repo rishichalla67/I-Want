@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import Nav from './Nav'
 import { useAuth } from '../contexts/AuthContext'
+import { useFirestore } from '../contexts/FirestoreContext'
 import {db} from '../firebase'
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import {useNavigate} from 'react-router-dom'
@@ -15,56 +16,48 @@ export default function EditProfile() {
     const stateRef = useRef()
     const postalCodeRef = useRef()
     const {currentUser} = useAuth()
+    const {activeUser} = useFirestore()
     const storage = getStorage()
     const [error, setError] = useState('')
     const [photoURL, setPhotoURL] = useState('')
     const [loading, setLoading] = useState(false)
-    const [user, setUser] = useState([])
+    const [uploadedPfp, setUploadedPfp] = useState(null)
     const navigate = useNavigate()
+    const delay = ms => new Promise(res => setTimeout(res, ms));
 
     useEffect(() => {
-      getUsers()
     }, [])
-    
-    const getUsers=async()=>{
-      const response=db.collection('users');
-      const data=await response.get();
-      data.docs.forEach(item=>{
-        if(item.data().email === currentUser.email){
-          setUser(item.data())
-        }
-      })
-      
-    }
 
     async function uploadPhoto(photoFile) {
         setLoading(true)
         console.log(photoFile)
-        const fileRef = ref(storage, 'pfp' + '/' + user.id)
+        const fileRef = ref(storage, 'pfp' + '/' + activeUser.id)
         await uploadBytes(fileRef, photoFile).then(
             await getDownloadURL(fileRef)
             .then(function(url){
               setPhotoURL(url)
               setLoading(false)
+              updateUser(url)
+              // window.location.reload(false);
             })
           ).catch(err => setError(err.message))
         
     }
 
-
-    const updateUser = (URL) => {
-      db.collection("users").doc(user.id).update({
-        photo: user.photo ? user.photo : URL,
-        bio : bioRef.current.value!==''? bioRef.current.value :user.bio,
-        firstName : firstNameRef.current.value!==''? firstNameRef.current.value :user.firstName,
-        lastName : lastNameRef.current.value!==''? lastNameRef.current.value :user.lastName,
-        street : streetAddressRef.current.value!==''? streetAddressRef.current.value :user.street,
-        city : cityRef.current.value!==''? cityRef.current.value :user.city,
-        country : countryRef.current.value!==''? countryRef.current.value :user.country,
-        state : stateRef.current.value!==''? stateRef.current.value :user.state,
-        postalCode : postalCodeRef.current.value!==''? postalCodeRef.current.value :user.postalCode
-      }).then(() => {
+    const updateUser = async(URL) => {
+      await db.collection("users").doc(activeUser.id).update({
+        photo: activeUser.photo ? activeUser.photo : URL,
+        bio : bioRef.current.value!==''? bioRef.current.value :activeUser.bio,
+        firstName : firstNameRef.current.value!==''? firstNameRef.current.value :activeUser.firstName,
+        lastName : lastNameRef.current.value!==''? lastNameRef.current.value :activeUser.lastName,
+        street : streetAddressRef.current.value!==''? streetAddressRef.current.value :activeUser.street,
+        city : cityRef.current.value!==''? cityRef.current.value :activeUser.city,
+        country : countryRef.current.value!==''? countryRef.current.value :activeUser.country,
+        state : stateRef.current.value!==''? stateRef.current.value :activeUser.state,
+        postalCode : postalCodeRef.current.value!==''? postalCodeRef.current.value :activeUser.postalCode
+      }).then(async() => {
         navigate('/profile')
+        
       }).catch(err => setError(err.message));
     }
 
@@ -73,11 +66,12 @@ export default function EditProfile() {
       
       setError("")
       setLoading(true)
-      updateUser(photoURL)
+      uploadPhoto(uploadedPfp)
+      
       setLoading(false)
   }
   
-  if(user.id){
+  if(!activeUser.id){
     return (
       <div className="flex items-center justify-center space-x-2">
         <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
@@ -90,7 +84,7 @@ export default function EditProfile() {
   return (
     <>
         <Nav/>
-        <div className='pt-10 grid place-items-center'>
+        {!loading && <div className='pt-10 grid place-items-center'>
             <div className="md:max-w-7xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center ">
                 <div className="px-4 py-5 sm:px-6">
                   <h3 className="text-xl leading-6 font-medium text-gray-900">Profile</h3>
@@ -112,8 +106,8 @@ export default function EditProfile() {
                         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md" disabled={loading}>
                           <div className="space-y-1 text-center">
                             <span className="inline-block h-12 w-12 rounded-full overflow-hidden ">
-                                <img className="h-12 w-12 rounded-full" disabled={user.photo === '' && photoURL !== ''} src={ user.photo } alt="" />
-                                <img className="h-12 w-12 rounded-full" disabled={photoURL !== ''} src={ photoURL } alt="" />
+                                {!photoURL && <img className="h-12 w-12 rounded-full" src={ activeUser.photo } alt="" />}
+                                {photoURL && <img className="h-12 w-12 rounded-full" src={ photoURL } alt="" />}
                             </span>
                             <div className="flex text-sm text-gray-600">
                               <label
@@ -124,7 +118,7 @@ export default function EditProfile() {
                                   <span className="pl-6 md:hidden">Upload a file</span>
                                   
                                   <input id="file-upload" name="file-upload" type="file" accept=".png" onChange={(e) => {
-                                    uploadPhoto(e.target.files[0])
+                                    setUploadedPfp(e.target.files[0])
                                     console.log(e.target.files)
                                     }} className="sr-only" />
                               </label>
@@ -146,8 +140,7 @@ export default function EditProfile() {
                             ref={bioRef}
                             rows={3}
                             className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md placeholder-gray-400"
-                            placeholder={user.bio && user.bio}
-                            // defaultValue={user.bio && user.bio}
+                            placeholder={activeUser.bio && activeUser.bio}
                         />
                         </div>
                     </div>
@@ -163,8 +156,7 @@ export default function EditProfile() {
                         name="first-name"
                         id="first-name"
                         ref={firstNameRef}
-                        placeholder={user.firstName && user.firstName}
-                        // defaultValue={user.firstName && user.firstName}
+                        placeholder={activeUser.firstName && activeUser.firstName}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
@@ -178,8 +170,7 @@ export default function EditProfile() {
                         name="last-name"
                         id="last-name"
                         ref={lastNameRef}
-                        placeholder={user.lastName && user.lastName}
-                        // defaultValue={user.lastName && user.lastName}
+                        placeholder={activeUser.lastName && activeUser.lastName}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
@@ -193,8 +184,7 @@ export default function EditProfile() {
                         name="street-address"
                         id="street-address"
                         ref={streetAddressRef}
-                        placeholder={user.street && user.street}
-                        // defaultValue={user.street && user.street}
+                        placeholder={activeUser.street && activeUser.street}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
@@ -208,8 +198,7 @@ export default function EditProfile() {
                         name="city"
                         id="city"
                         ref={cityRef}
-                        placeholder={user.city && user.city}
-                        // defaultValue={user.city && user.city}
+                        placeholder={activeUser.city && activeUser.city}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
@@ -223,8 +212,7 @@ export default function EditProfile() {
                         name="region"
                         id="region"
                         ref={stateRef}
-                        placeholder={user.state && user.state}
-                        // defaultValue={user.state && user.state}
+                        placeholder={activeUser.state && activeUser.state}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
@@ -238,8 +226,7 @@ export default function EditProfile() {
                         name="postal-code"
                         id="postal-code"
                         ref={postalCodeRef}
-                        placeholder={user.postalCode && user.postalCode}
-                        // defaultValue={user.postalCode && user.postalCode}
+                        placeholder={activeUser.postalCode && activeUser.postalCode}
                         className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md placeholder-gray-400"
                       />
                     </div>
@@ -252,8 +239,7 @@ export default function EditProfile() {
                         id="country"
                         name="country"
                         ref={countryRef}
-                        placeholder={user.country && user.country}
-                        // defaultValue={user.country && user.country}
+                        placeholder={activeUser.country && activeUser.country}
                         className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm placeholder-gray-400"
                       >
                         
@@ -281,7 +267,7 @@ export default function EditProfile() {
                 </form>
             </div>
             {/* </div> */}
-      </div>
+      </div>}
 
       <div className="hidden sm:block" aria-hidden="true">
         <div className="py-5">

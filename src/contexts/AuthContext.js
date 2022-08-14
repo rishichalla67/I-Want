@@ -10,7 +10,7 @@ export function useAuth() {
 
 export function AuthProvider( { children } ) {
     const [currentUser, setCurrentUser] = useState()
-    const [user, setUser] = useState()
+    const [allUsers, setAllUsers] = useState([])
     const [loading, setLoading] = useState(true)
 
     function signup(email, password){
@@ -28,6 +28,28 @@ export function AuthProvider( { children } ) {
     function resetPassword(email) {
         return auth.sendPasswordResetEmail(email)
     }
+
+    // async function fetchAllUsers(){
+    //     await db.collection("users").get()
+    //     .then((snapshot) => {
+    //       console.log(snapshot)
+    //       if(snapshot.docs.length > 0){
+    //         console.log(snapshot.docs.length)
+    //         const tempUsers = []
+    //         snapshot.docs.forEach((user)=>{
+    //           tempUsers.push({
+    //             id: user.data().id,
+    //             firstName: user.data().firstName?user.data().firstName:'',
+    //             lastName: user.data().lastName?user.data().lastName:'',
+    //             photo: user.data().photo?user.data().photo:'',
+    //             friends: user.data().friends?user.data().friends:[]
+    //           })
+              
+    //         })
+    //         setAllUsers(tempUsers)
+    //       }
+    //     }).catch()
+    //   }
 
     // function getUser(){
     //     getUsers()
@@ -47,7 +69,8 @@ export function AuthProvider( { children } ) {
         login,
         logout,
         signup,
-        resetPassword
+        resetPassword,
+        allUsers
     }
 
   return (

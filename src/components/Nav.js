@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { useAuth } from '../contexts/AuthContext'
+import { useFirestore } from '../contexts/FirestoreContext'
 import { db } from '../firebase'
 import { useNavigate} from 'react-router-dom'
   
@@ -15,34 +16,27 @@ export default function Nav() {
   const navigate = useNavigate()
   const {currentUser, logout} = useAuth()
   const [error, setError] = useState()
-  const [user, setUser] = useState([])
+  const { allUsers, activeUser, getUsers} = useFirestore()
+  const [notifications, setNotifications] = useState([])
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     getUsers()
+    if(activeUser.id){
+      checkForNotifications()
+    }
   }, [])
   
-  const getUsers=async()=>{
-    const response=db.collection('users');
-    const data=await response.get();
-    data.docs.forEach(item=>{
-      if(item.data().email === currentUser.email){
-        setUser(item.data())
-      }
-    })
-    
+  async function checkForNotifications() {
+      
   }
 
   async function handleLogout() {
     setError("")
-
     await logout()
     .then(() => navigate)
     .catch(err => setError(err.message))
   }
-
-  const navigateProfile = () => {
-    navigate('/profile');
-  }  
 
   // Add here for user specific menu
   const userNavigation = [
@@ -57,7 +51,7 @@ export default function Nav() {
 
   ]
 
-  if(!user.id){
+  if(!activeUser.id){
     return (
       <div className="flex items-center justify-center space-x-2">
         <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
@@ -69,7 +63,42 @@ export default function Nav() {
 
   return (
     <>
-        <Disclosure as="nav" className="bg-gradient-to-r from-sky-300 via-sky-400 to-sky-500">
+        {showModal ? 
+         <>
+         <Nav/>
+         <div
+            className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
+          >
+            <div className="relative w-auto my-6 mx-auto max-w-3xl">
+              {/*content*/}
+              <div className="border-0 rounded-lg shadow-lg relative bg-white outline-none focus:outline-none grid place-items-center">
+                {/*header*/}
+                <div className=" justify-between p-5 border-b border-solid border-slate-200 rounded-t grid place-items-center">
+                  <h3 className="text-3xl font-semibold">
+                    Notifications
+                  </h3>
+                </div>
+                {/*body*/}
+                <div className="relative p-6 flex-auto">
+                  
+                </div>
+                {/*footer*/}
+                <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
+                  <button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+         </>
+        
+        : <Disclosure as="nav" className="bg-gradient-to-r from-sky-300 via-sky-400 to-sky-500">
           {({ open }) => (
             <>
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid justify-items-stretch">
@@ -106,6 +135,7 @@ export default function Nav() {
                     <div className="ml-4 flex items-center md:ml-6">
                       <button
                         type="button"
+                        onClick={() => setShowModal(true)}
                         className="bg-gray-800 p-1 rounded-full text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
                       >
                         <span className="sr-only">View notifications</span>
@@ -117,7 +147,7 @@ export default function Nav() {
                         <div>
                           <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                             <span className="sr-only">Open user menu</span>
-                            <img className="h-8 w-8 rounded-full" src={user.photo && user.photo} alt="" />
+                            <img className="h-8 w-8 rounded-full" src={activeUser.photo && activeUser.photo} alt="" />
                           </Menu.Button>
                         </div>
                         <Transition
@@ -166,6 +196,7 @@ export default function Nav() {
 
               <Disclosure.Panel className="md:hidden">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                  
                   {navigation.map((item) => (
                     <Disclosure.Button
                       key={item.name}
@@ -183,6 +214,14 @@ export default function Nav() {
                 </div>
                 <div className="pt-4 pb-3 border-t border-gray-700">
                   <div className="px-2 space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(true)}
+                      className="bg-gray-800 p-1 rounded-full text-slate-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+                    >
+                      <span className="sr-only">View notifications</span>
+                      <BellIcon className="h-6 w-6" aria-hidden="true" />
+                    </button>
                     {userNavigation.map((item) => (
                       <Disclosure.Button
                         key={item.name}
@@ -199,9 +238,9 @@ export default function Nav() {
               </Disclosure.Panel>
             </>
           )}
-        </Disclosure>
+        </Disclosure>}
         
-        <div role="alert" hidden={user.firstName}>
+        <div role="alert" hidden={activeUser.firstName}>
           <div className="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
               <p>Please update your profile to include your first name!</p>
               <p>This allows you to be added as a friend</p>
