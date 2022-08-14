@@ -1,7 +1,8 @@
-export const Notification = (id) => {
+export const Notification = (msg, id, first) => {
     return {
         checked: false,
-        message: "",
+        message: msg,
         requesterID: id,
+        firstName: first
     }
 }

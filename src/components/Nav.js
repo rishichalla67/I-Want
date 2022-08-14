@@ -16,12 +16,20 @@ export default function Nav() {
   const navigate = useNavigate()
   const {currentUser, logout} = useAuth()
   const [error, setError] = useState()
-  const { allUsers, activeUser, getUsers, notifications} = useFirestore()
+  const [notifications, setNotifications] = useState()
+  const { allUsers, activeUser, getUsers} = useFirestore()
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     getUsers()
-    console.log(notifications)
+    // console.log(notifications)
+    const temp = []
+    activeUser.notifications.map(function(notif){
+      // console.log("notif: " + notif.requesterID)
+      temp.push(notif.requesterID)
+    })
+    setNotifications(temp)
+    // console.log(notifications)
     // if(activeUser.id){
     //   checkForNotifications()
     // }
@@ -87,11 +95,10 @@ export default function Nav() {
                     </p>
                   })} */}
                   <div>
-                    {notifications.map(function(notif){
-                      <p>
-                        test{console.log(notif)} 
-                        {notif.requesterID}
-                      </p>
+                    {activeUser.notifications.map((notif) => {
+                      return(<p key={notif.requesterID}>
+                        {notif.firstName}{notif.message}
+                      </p>)
                     })}
                   </div>
                   <div className="relative p-6 flex-auto">

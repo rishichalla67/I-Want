@@ -29,7 +29,7 @@ export default function Friends() {
 
   async function updateNotification(friendID){
     await db.collection("users").doc(friendID).update({
-      notifications: arrayUnion(Notification(activeUser.id))
+      notifications: arrayUnion(Notification(" has requested to be your friend...",activeUser.id, activeUser.firstName))
     }).then(() =>{
       console.log('Requested ' + friendID + 'to friends list')
       getUsers()
