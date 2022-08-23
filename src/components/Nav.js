@@ -10,8 +10,6 @@ import { useNavigate} from 'react-router-dom'
     return classes.filter(Boolean).join(' ')
   }
 
-  
-
 export default function Nav() {
   const navigate = useNavigate()
   const {currentUser, logout} = useAuth()
@@ -22,22 +20,15 @@ export default function Nav() {
 
   useEffect(() => {
     getUsers()
-    // console.log(notifications)
     const temp = []
-    activeUser.notifications.map(function(notif){
-      // console.log("notif: " + notif.requesterID)
-      temp.push(notif.requesterID)
-    })
-    setNotifications(temp)
-    // console.log(notifications)
-    // if(activeUser.id){
-    //   checkForNotifications()
-    // }
+    if(activeUser.notifications !== undefined && notifications){
+      activeUser.notifications.map(function(notif){
+        // console.log("notif: " + notif.requesterID)
+        temp.push(notif.requesterID)
+      })
+      setNotifications(temp)
+    }
   }, [])
-  
-  async function checkForNotifications() {
-      
-  }
 
   async function handleLogout() {
     setError("")
@@ -86,14 +77,6 @@ export default function Nav() {
                     Notifications
                   </h3>
                 </div>
-                {/*body*/}
-                {/* <div className="relative p-6 flex-auto"> */}
-                  {/* {activeUser.notifications.forEach(function(notif){
-                    console.log(notif);
-                    <p>
-                        notif.message from notif.requesterID
-                    </p>
-                  })} */}
                   <div>
                     {activeUser.notifications.map((notif) => {
                       return(<p key={notif.requesterID}>
@@ -103,7 +86,6 @@ export default function Nav() {
                   </div>
                   <div className="relative p-6 flex-auto">
                     <p className="my-4 text-slate-500 text-lg leading-relaxed">
-                      
                     </p>
                   </div>
                 {/* </div> */}
@@ -130,11 +112,6 @@ export default function Nav() {
                 <div className="flex items-center justify-self-end h-16">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      {/* <img
-                        className="h-8 w-8"
-                        src='assets\logo.jpg'
-                        alt="Workflow"
-                      /> */}
                     </div>
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
