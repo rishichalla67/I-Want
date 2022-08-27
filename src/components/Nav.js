@@ -80,7 +80,7 @@ export default function Nav() {
                   <div>
                     {activeUser.notifications.map((notif) => {
                       return(<p key={notif.requesterID}>
-                        {notif.firstName}{notif.message}
+                        {notif.username}{notif.message}
                       </p>)
                     })}
                   </div>
