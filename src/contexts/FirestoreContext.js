@@ -33,7 +33,8 @@ export function FirestoreProvider( { children } ) {
                 lastName: user.data().lastName?user.data().lastName:'',
                 photo: user.data().photo?user.data().photo:'',
                 friends: user.data().friends?user.data().friends:[],
-                notifications: user.data().notifications?user.data().notifications:[]
+                notifications: user.data().notifications?user.data().notifications:[],
+                username: user.data().username
               })
               
             })

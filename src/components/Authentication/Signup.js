@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import { LockClosedIcon } from '@heroicons/react/solid'
 import { useAuth } from '../../contexts/AuthContext'
 import {useNavigate} from 'react-router-dom'
@@ -9,15 +9,39 @@ export default function Signup() {
   const emailRef = useRef()
   const passwordRef = useRef()
   const passwordConfirmRef = useRef()
+  const usernameRef = useRef()
   const {signup} = useAuth()
+  const [allUsernames, setAllUsers] = useState()
   const navigate = useNavigate()
 
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const createUser = (e) => {
+  async function fetchAllUsers(){
+    await db.collection("users").get()
+    .then((snapshot) => {
+      if(snapshot.docs.length > 0){
+        const tempUsers = []
+        snapshot.docs.forEach((user)=>{
+          tempUsers.push(user.data().username?user.data().username:''
+        )
+        })
+        setAllUsers(tempUsers) 
+        
+      }
+    }).catch()
+  }
+
+  useEffect(() => {
+    if(!allUsernames){
+      fetchAllUsers()
+    }
+  })
+
+  const createUser = (emailValue, usernameValue) => {
     db.collection("users").add({
-      email : e,
+      email: emailValue,
+      username: usernameValue 
     }).then((docRef) => {
       db.collection("users").doc(docRef.id).update(User(docRef.id))
   })
@@ -26,21 +50,38 @@ export default function Signup() {
 
     async function handleSubmit(e) {
         e.preventDefault()
+        
+        const usernameInput = "@"+usernameRef.current.value.toLowerCase()
 
+        // Validation
+        if(allUsernames.includes(usernameInput)){
+          return setError("Sorry. " + usernameInput + " is taken. Please try another username!")
+        }
         if(passwordRef.current.value !== passwordConfirmRef.current.value){
             return setError("Passwords do not match!")
         }
         
+
         setError("")
         setLoading(true)
         await signup(emailRef.current.value, passwordRef.current.value)
         .then(() => {
-          createUser(emailRef.current.value)
+          createUser(emailRef.current.value, usernameInput)
           navigate('/')
         })
         .catch(err => setError(err.message))
         
         setLoading(false)
+    }
+
+    if(allUsernames == undefined){
+      return (
+        <div className="flex items-center justify-center space-x-2">
+          <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
+            <span className="visually-hidden"></span>
+          </div>
+        </div>
+      )
     }
 
   return (
@@ -60,7 +101,21 @@ export default function Signup() {
       <form className="mt-8 space-y-6" action="#" onSubmit={handleSubmit}>
         <input type="hidden" name="remember" defaultValue="true" />
         <div className="rounded-md shadow-sm -space-y-px">
-          <div>
+        <div>
+            <label htmlFor="username-signup" className="sr-only">
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="username"
+              ref={usernameRef}
+              required
+              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Username"
+            />
+          </div>
+          <div className="pt-2">
             <label htmlFor="email-address-signup" className="sr-only">
               Email address
             </label>

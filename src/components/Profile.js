@@ -13,16 +13,6 @@ export default function Profile() {
     getUsers()  
   }, [])
 
-  // const getUsers=async()=>{
-  //   const response=db.collection('users');
-  //   const data=await response.get();
-  //   data.docs.forEach(item=>{
-  //     if(item.data().email === currentUser.email){
-  //       setUser(item.data())
-  //     }
-  //   })
-  // }
-
   if(!activeUser.id){
     return(
       <div className="flex items-center justify-center space-x-2">

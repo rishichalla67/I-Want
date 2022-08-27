@@ -16,10 +16,10 @@ export default function Friends() {
     getUsers()
   }, [])
 
-  const addFriend = async(friendID) => {
+  const addFriend = async(friendID, friendUsername) => {
     console.log(activeUser)
     await db.collection("users").doc(activeUser.id).update({
-      friends: arrayUnion(friendID)
+      friends: arrayUnion(friendUsername)
     }).then(() =>{
       getUsers()
       updateNotification(friendID)
@@ -29,18 +29,18 @@ export default function Friends() {
 
   async function updateNotification(friendID){
     await db.collection("users").doc(friendID).update({
-      notifications: arrayUnion(Notification(" has requested to be your friend...",activeUser.id, activeUser.firstName))
+      notifications: arrayUnion(Notification(activeUser.username, " has requested to be your friend...", activeUser.id,  activeUser.firstName))
     }).then(() =>{
       console.log('Requested ' + friendID + 'to friends list')
       getUsers()
     })
   }
 
-  const removeFriend = async(friendID) => {
+  const removeFriend = async(friendUsername) => {
     await db.collection("users").doc(activeUser.id).update({
-      friends: arrayRemove(friendID)
+      friends: arrayRemove(friendUsername)
     }).then(() =>{
-      console.log('Removed ' + friendID + 'to friends list')
+      console.log('Removed ' + friendUsername + 'from friends list')
       getUsers()
     })
   }
@@ -65,10 +65,10 @@ export default function Friends() {
             </div>
             {error && error}
             {allUsers && allUsers.map((user) => {
-                if(user.firstName === '' || !activeUser.friends.includes(user.id)){return}
+                if(user.firstName === '' || !activeUser.friends.includes(user.username)){return}
                 return(
                 <div key={user.id} className="pt-10 grid place-items-center pb-5">
-                  {activeUser.friends.includes(user.id) && 
+                  {activeUser.friends.includes(user.username) && 
                     <div className="p-3 min-w-75% md:max-w-5xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center">
                       {/* TODO: Make gradient be selected state */}
                       <div  className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gradient-to-r from-sky-300 via-sky-400 to-sky-500">
@@ -77,8 +77,8 @@ export default function Friends() {
                           {user.photo && <img className="h-48 w-40 rounded-lg" src={ user.photo } alt="" />}
                         </dd>
                       </div>
-                      <div onClick={() => removeFriend(user.id) } className="pt-2 hover:cursor-pointer hover:bg-">
-                        {activeUser.friends.includes(user.id) && <a className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-900">
+                      <div onClick={() => removeFriend(user.username) } className="pt-2 hover:cursor-pointer hover:bg-">
+                        {activeUser.friends.includes(user.username) && <a className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-900">
                           Remove Friend
                         </a>}  
                         
@@ -94,9 +94,9 @@ export default function Friends() {
                 <h3 className="text-4xl leading-6 font-medium text-gray-900">Add Friends</h3>
               </div>
               {allUsers && allUsers.map((user) => {
-                if(user.firstName === '' || activeUser.friends.includes(user.id)){return}
+                if(user.firstName === '' || activeUser.friends.includes(user.username)){return}
                 return(
-                <div key={user.id} className="pt-10 grid place-items-center">
+                <div key={user.username} className="pt-10 grid place-items-center">
                   {(user.firstName && user.photo && user.id !== activeUser.id) && 
                     <div className="p-3 min-w-75% md:max-w-5xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center">
                       {/* TODO: Make gradient be selected state */}
@@ -106,14 +106,14 @@ export default function Friends() {
                           {user.photo && <img className="h-48 w-40 rounded-lg" src={ user.photo } alt="" />}
                         </dd>
                       </div>
-                      <div onClick={() => addFriend(user.id) } className="pt-2 hover:cursor-pointer hover:bg-">
-                        {!activeUser.friends.includes(user.id) && <a className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-900">
+                      <div onClick={() => addFriend(user.id, user.username) } className="pt-2 hover:cursor-pointer hover:bg-">
+                        {!activeUser.friends.includes(user.username) && <a className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-900">
                           Add Friend
                         </a>}  
                         
                       </div>
-                      <div onClick={() => removeFriend(user.id) } className="pt-2 hover:cursor-pointer hover:bg-">
-                        {activeUser.friends.includes(user.id) && <a className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-900">
+                      <div onClick={() => removeFriend(user.username) } className="pt-2 hover:cursor-pointer hover:bg-">
+                        {activeUser.friends.includes(user.username) && <a className="inline-flex justify-center w-full py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-900">
                           Remove Friend
                         </a>}  
                         
