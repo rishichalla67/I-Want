@@ -28,17 +28,11 @@ const EditProfile = (props) => {
         setLoading(true)
         console.log(photoFile)
         const fileRef = ref(storage, 'pfp' + '/' + activeUser.id)
-        await uploadBytes(fileRef, photoFile).then(
-            await getDownloadURL(fileRef)
-            .then(function(url){
-              console.log(url)
-              setPhotoURL(url)
-              // props.handleSave(url)
-              setLoading(false)
-              
-            })
-          ).catch(err => setError(err.message))
-        console.log(`Photo URL: ${photoURL}, Loading: ${loading}`);
+        const uploadedPhoto = await uploadBytes(fileRef, photoFile)
+        console.log(uploadedPhoto)
+        const url = await getDownloadURL(fileRef)
+        setLoading(false)
+        return(url)
     }
 
     const updateUser = async(URL) => {
@@ -64,15 +58,18 @@ const EditProfile = (props) => {
       
       setError("")
       setLoading(true)
-      uploadPhoto(uploadedPfp)
-      if(activeUser.id){
-        refreshUser(activeUser.id)
-      }
-      setLoading(false)
-      updateUser(photoURL)
-      console.log(`PhotoURL: ${photoURL}`)
-      props.handleSave(photoURL)
-
+      uploadPhoto(uploadedPfp).then(url => {
+        console.log(url)
+        // if(activeUser.id){
+        //   refreshUser(activeUser.id)
+        // }
+        
+        // while(url.finally)
+        setLoading(false)
+        updateUser(url)
+        console.log(`PhotoURL: ${url}`)
+        props.handleSave(url)
+      })
   }
   
   if(!activeUser.id){
