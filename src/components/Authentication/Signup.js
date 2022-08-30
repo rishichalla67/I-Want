@@ -6,7 +6,6 @@ import {db} from '../../firebase'
 import {User} from '../../Classes/User'
 
 export default function Signup() {
-  const usernameIsTakenMsg = "Username is taken, please choose another"
   const emailRef = useRef()
   const passwordRef = useRef()
   const passwordConfirmRef = useRef()
@@ -51,10 +50,10 @@ export default function Signup() {
     const usernameToValidate = e.target.value.toLowerCase()
     if(allUsernames.includes("@"+usernameToValidate)){
       setUsernameTaken("red-400")
-      setError(usernameIsTakenMsg)
+      setError(`@${usernameToValidate} is taken, please choose another`)
     }else{
       setUsernameTaken("white")
-      if(error === usernameIsTakenMsg){
+      if(error.includes("@")){
         setError("")
       }
     }
