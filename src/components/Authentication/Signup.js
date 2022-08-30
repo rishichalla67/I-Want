@@ -6,6 +6,7 @@ import {db} from '../../firebase'
 import {User} from '../../Classes/User'
 
 export default function Signup() {
+  const usernameIsTakenMsg = "Username is taken, please choose another"
   const emailRef = useRef()
   const passwordRef = useRef()
   const passwordConfirmRef = useRef()
@@ -16,20 +17,18 @@ export default function Signup() {
 
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [usernameTaken, setUsernameTaken] = useState('white')
 
   async function fetchAllUsers(){
-    await db.collection("users").get()
-    .then((snapshot) => {
-      if(snapshot.docs.length > 0){
-        const tempUsers = []
-        snapshot.docs.forEach((user)=>{
-          tempUsers.push(user.data().username?user.data().username:''
-        )
-        })
-        setAllUsers(tempUsers) 
-        
-      }
-    }).catch()
+    const snapshot = await db.collection("users").get()
+    if(snapshot.docs.length > 0){
+      const tempUsers = []
+      snapshot.docs.forEach((user)=>{
+        tempUsers.push(user.data().username?user.data().username:''
+      )
+      })
+      setAllUsers(tempUsers) 
+    }
   }
 
   useEffect(() => {
@@ -46,6 +45,20 @@ export default function Signup() {
       db.collection("users").doc(docRef.id).update(User(docRef.id))
   })
     .catch(err => setError(err.message));
+  }
+
+  const validateUsername = (e) => {
+    const usernameToValidate = e.target.value.toLowerCase()
+    if(allUsernames.includes("@"+usernameToValidate)){
+      setUsernameTaken("red-400")
+      setError(usernameIsTakenMsg)
+    }else{
+      setUsernameTaken("white")
+      if(error === usernameIsTakenMsg){
+        setError("")
+      }
+    }
+    
   }
 
     async function handleSubmit(e) {
@@ -74,7 +87,7 @@ export default function Signup() {
         setLoading(false)
     }
 
-    if(allUsernames == undefined){
+    if(allUsernames === undefined){
       return (
         <div className="flex items-center justify-center space-x-2">
           <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
@@ -110,8 +123,9 @@ export default function Signup() {
               name="username"
               type="username"
               ref={usernameRef}
+              onChange={validateUsername}
               required
-              className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              className={`appearance-none rounded-none relative block w-full px-3 py-2 border bg-${usernameTaken} border-gray-30 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}
               placeholder="Username"
             />
           </div>
