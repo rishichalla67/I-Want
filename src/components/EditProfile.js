@@ -5,8 +5,9 @@ import { useFirestore } from '../contexts/FirestoreContext'
 import {db} from '../firebase'
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import {useNavigate} from 'react-router-dom'
+import PropTypes from 'prop-types'
 
-export default function EditProfile() {
+const EditProfile = (props) => {
     const bioRef = useRef()
     const firstNameRef = useRef()
     const lastNameRef = useRef()
@@ -15,38 +16,28 @@ export default function EditProfile() {
     const countryRef = useRef()
     const stateRef = useRef()
     const postalCodeRef = useRef()
-    const {currentUser} = useAuth()
-    const {activeUser} = useFirestore()
+    const {activeUser, getUsers, refreshUser} = useFirestore()
     const storage = getStorage()
     const [error, setError] = useState('')
     const [photoURL, setPhotoURL] = useState('')
     const [loading, setLoading] = useState(false)
     const [uploadedPfp, setUploadedPfp] = useState(null)
     const navigate = useNavigate()
-    const delay = ms => new Promise(res => setTimeout(res, ms));
-
-    useEffect(() => {
-    }, [])
 
     async function uploadPhoto(photoFile) {
         setLoading(true)
         console.log(photoFile)
         const fileRef = ref(storage, 'pfp' + '/' + activeUser.id)
-        await uploadBytes(fileRef, photoFile).then(
-            await getDownloadURL(fileRef)
-            .then(function(url){
-              setPhotoURL(url)
-              setLoading(false)
-              updateUser(url)
-              // window.location.reload(false);
-            })
-          ).catch(err => setError(err.message))
-        
+        const uploadedPhoto = await uploadBytes(fileRef, photoFile)
+        console.log(uploadedPhoto)
+        const url = await getDownloadURL(fileRef)
+        setLoading(false)
+        return(url)
     }
 
     const updateUser = async(URL) => {
       await db.collection("users").doc(activeUser.id).update({
-        photo: activeUser.photo ? activeUser.photo : URL,
+        photo: URL ? URL : activeUser.photo,
         bio : bioRef.current.value!==''? bioRef.current.value :activeUser.bio,
         firstName : firstNameRef.current.value!==''? firstNameRef.current.value :activeUser.firstName,
         lastName : lastNameRef.current.value!==''? lastNameRef.current.value :activeUser.lastName,
@@ -59,6 +50,7 @@ export default function EditProfile() {
         navigate('/profile')
         
       }).catch(err => setError(err.message));
+
     }
 
     async function saveProfile(e) {
@@ -66,9 +58,18 @@ export default function EditProfile() {
       
       setError("")
       setLoading(true)
-      uploadPhoto(uploadedPfp)
-      
-      setLoading(false)
+      uploadPhoto(uploadedPfp).then(url => {
+        console.log(url)
+        // if(activeUser.id){
+        //   refreshUser(activeUser.id)
+        // }
+        
+        // while(url.finally)
+        setLoading(false)
+        updateUser(url)
+        console.log(`PhotoURL: ${url}`)
+        props.handleSave(url)
+      })
   }
   
   if(!activeUser.id){
@@ -79,11 +80,10 @@ export default function EditProfile() {
         </div>
       </div>
     )
-  }
+  };
 
   return (
     <>
-        <Nav/>
         {!loading && <div className='pt-10 grid place-items-center'>
             <div className="md:max-w-7xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center ">
                 <div className="px-4 py-5 sm:px-6">
@@ -117,7 +117,7 @@ export default function EditProfile() {
                                   <span className="hidden md:block">Upload a file</span>
                                   <span className="pl-6 md:hidden">Upload a file</span>
                                   
-                                  <input id="file-upload" name="file-upload" type="file" accept=".png" onChange={(e) => {
+                                  <input id="file-upload" name="file-upload" type="file" accept={[".png", ".jpg", ".gif" ]} onChange={(e) => {
                                     setUploadedPfp(e.target.files[0])
                                     console.log(e.target.files)
                                     }} className="sr-only" />
@@ -274,13 +274,12 @@ export default function EditProfile() {
           <div className="border-t border-gray-200" />
         </div>
       </div>
-
-
-      {/* <div className="hidden sm:block" aria-hidden="true">
-        <div className="py-5">
-          <div className="border-t border-gray-200" />
-        </div>
-      </div> */}
     </>
   )
 }
+
+EditProfile.propTypes = {
+  handleSave: PropTypes.func 
+};
+
+export default EditProfile;

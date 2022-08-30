@@ -1,7 +1,9 @@
 import React from 'react'
 import { useEffect, useContext, useState} from 'react'
-import {auth, db} from '../firebase'
+import {db} from '../firebase'
 import { useAuth } from './AuthContext'
+import { doc, getDoc } from "firebase/firestore";
+
 
 const FirestoreContext = React.createContext()
 
@@ -43,6 +45,15 @@ export function FirestoreProvider( { children } ) {
           }
         }).catch()
       }
+
+      async function refreshUser(id) {
+        const docRef = doc(db, "users", id);
+        const user = await getDoc(docRef);
+        if(user.exists()){
+          setActiveUser(user.data())
+          console.log(user.data())
+        }         
+      }
       
       async function getUsers() {
         const response=db.collection('users');
@@ -71,7 +82,8 @@ export function FirestoreProvider( { children } ) {
         allUsers,
         activeUser,
         getUsers,
-        notifications
+        notifications,
+        refreshUser
     }
 
   return (

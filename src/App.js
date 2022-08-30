@@ -21,7 +21,7 @@ function App() {
                             {/* Protected Routes */}
                             <Route exact path='/' element={<PrivateRoute><Home/></PrivateRoute>}/>
                             <Route path='/profile' element={<PrivateRoute><Profile/></PrivateRoute>} />
-                            <Route path='/edit-profile' element={<PrivateRoute><EditProfile/></PrivateRoute>} />
+                            {/* <Route path='/edit-profile' element={<PrivateRoute><EditProfile/></PrivateRoute>} /> */}
                             <Route path='/friends' element={<PrivateRoute><Friends/></PrivateRoute>} />
                             {/* Public Routes */}
                             <Route path='/login' element={<Login/>} />
