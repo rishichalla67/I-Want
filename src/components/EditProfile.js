@@ -1,6 +1,4 @@
 import React, {useState, useEffect, useRef} from 'react'
-import Nav from './Nav'
-import { useAuth } from '../contexts/AuthContext'
 import { useFirestore } from '../contexts/FirestoreContext'
 import {db} from '../firebase'
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"
@@ -16,7 +14,7 @@ const EditProfile = (props) => {
     const countryRef = useRef()
     const stateRef = useRef()
     const postalCodeRef = useRef()
-    const {activeUser, getUsers, refreshUser} = useFirestore()
+    const {activeUser} = useFirestore()
     const storage = getStorage()
     const [error, setError] = useState('')
     const [photoURL, setPhotoURL] = useState('')
@@ -60,11 +58,7 @@ const EditProfile = (props) => {
       setLoading(true)
       uploadPhoto(uploadedPfp).then(url => {
         console.log(url)
-        // if(activeUser.id){
-        //   refreshUser(activeUser.id)
-        // }
-        
-        // while(url.finally)
+        setPhotoURL(url)
         setLoading(false)
         updateUser(url)
         console.log(`PhotoURL: ${url}`)
@@ -106,8 +100,8 @@ const EditProfile = (props) => {
                         <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md" disabled={loading}>
                           <div className="space-y-1 text-center">
                             <span className="inline-block h-12 w-12 rounded-full overflow-hidden ">
-                                {!photoURL && <img className="h-12 w-12 rounded-full" src={ activeUser.photo } alt="" />}
-                                {photoURL && <img className="h-12 w-12 rounded-full" src={ photoURL } alt="" />}
+                                {!props.activePhotoURL && <img className="h-12 w-12 rounded-full" src={ activeUser.photo } alt="" />}
+                                {props.activePhotoURL && <img className="h-12 w-12 rounded-full" src={ props.activePhotoURL } alt="" />}
                             </span>
                             <div className="flex text-sm text-gray-600">
                               <label
@@ -279,7 +273,8 @@ const EditProfile = (props) => {
 }
 
 EditProfile.propTypes = {
-  handleSave: PropTypes.func 
+  handleSave: PropTypes.func,
+  activePhotoURL: PropTypes.string
 };
 
 export default EditProfile;

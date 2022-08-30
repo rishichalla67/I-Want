@@ -1,28 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import Nav from '../components/Nav'
-import { useAuth } from '../contexts/AuthContext'
-import {db} from '../firebase'
+import { useFirestore } from '../contexts/FirestoreContext'
 
 export default function Home() {
-    const {currentUser} = useAuth()
-    const [user, setUser] = useState([])
+  const {activeUser} = useFirestore()
 
-  useEffect(() => {
-    getUsers()    
-  }, [])
-
-  const getUsers=async()=>{
-    const response=db.collection('users');
-    const data=await response.get();
-    data.docs.forEach(item=>{
-      if(item.data().email === currentUser.email){
-        setUser(item.data())
-      }
-    })
-    
-  }
-
-  if(!user.id){
+  if(!activeUser.id){
     return (
       <div className="flex items-center justify-center space-x-2">
         <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
@@ -36,7 +19,7 @@ export default function Home() {
     <>
       <div className="min-h-full">
         <Nav/>
-        <header className="bg-white shadow bg-slate-100" >
+        <header className="bg-white shadow" >
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 ">
             <h1 className="text-3xl font-bold text-gray-900">
                 Home Feed
@@ -45,10 +28,13 @@ export default function Home() {
         </header>
         <main>
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 font-bold">
-            Hey {currentUser.email}!
+            Hey {activeUser.username}!
           </div>
           <div>
-            The Feed is still in development, but thank you for joining
+            The Feed is still in development, 
+          </div>
+          <div>
+            please feel free to test other functionality!
           </div>
         </main>
       </div>

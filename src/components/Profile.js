@@ -7,11 +7,11 @@ import EditProfile from './EditProfile'
 export default function Profile() {
   const {getUsers, activeUser, refreshUser} = useFirestore()
   const [showEditProfile, setShowEditProfile] = useState(false)
-  const [updatedPhoto, setUpdatePhoto] = useState('')
+  const [updatedPhoto, setUpdatedPhoto] = useState('')
 
   const handleSave = (url) => {
     console.log(url)
-    setUpdatePhoto(url)
+    setUpdatedPhoto(url)
     setShowEditProfile(false)
   };
 
@@ -78,7 +78,7 @@ export default function Profile() {
           </div>
           
         </div>}
-        {showEditProfile && <EditProfile handleSave={handleSave} />}
+        {showEditProfile && <EditProfile handleSave={handleSave} activePhotoURL={updatedPhoto}/>}
         
     </>
   )
