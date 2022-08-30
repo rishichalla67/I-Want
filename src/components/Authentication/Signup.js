@@ -14,6 +14,11 @@ export default function Signup() {
   const [allUsernames, setAllUsers] = useState()
   const navigate = useNavigate()
 
+  //Subject to change
+  //TODO: 2 categories of errors: 
+  //   1.) realtime (username validation etc.) show error under respective input field  -> this would be input field specific, 
+  //        maybe we create an error object that has {message and type} (type can be used to sort which input to display at)
+  //   2.) on form submit  -> this would be a state array 
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [usernameTaken, setUsernameTaken] = useState('white')
