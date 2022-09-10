@@ -63,7 +63,7 @@ export default function CryptoPortfolio() {
                 //TODO: Add logic to calculate LPs
               }
               else{
-                totalSum += parseInt(ticker.price) * position.quantity
+                totalSum += parseFloat(ticker.price) * position.quantity
               }
             }
           })
