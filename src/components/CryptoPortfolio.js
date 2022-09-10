@@ -25,7 +25,7 @@ export default function CryptoPortfolio() {
           if(allPortfolioIds.length !== 0){
             const portfolio = await getPortfolio(allPortfolioIds[0])
             calculatePortfolioValue(portfolio)
-            setLoading(false)
+            
           }
         
         }
@@ -33,12 +33,12 @@ export default function CryptoPortfolio() {
         
 
         const interval=setInterval(()=>{
+          recordPortfolioValue(PricePoint(getCurrentDate(), portfolioValue), PORTFOLIO_ID).catch(err => setError(err.message))
           refreshOraclePrices()
           // calculatePortfolioValue(portfolioValue)
-          recordPortfolioValue(PricePoint(getCurrentDate(), portfolioValue), PORTFOLIO_ID).catch(err => setError(err.message))
          },300000)
            
-         
+         setLoading(false)
          return()=>clearInterval(interval)
          
       }, [])
