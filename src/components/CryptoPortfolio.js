@@ -3,7 +3,6 @@ import { useCryptoOracle } from '../contexts/CryptoContext'
 import { useFirestore } from '../contexts/FirestoreContext'
 import {Position} from '../Classes/Position'
 import { PricePoint } from '../Classes/PricePoint'
-import { format } from 'date-fns'
 
 const PORTFOLIO_ID = "rishiChalla"
 
@@ -21,29 +20,31 @@ export default function CryptoPortfolio() {
 
     useEffect(() => {
       setLoading(true)
-        async function getPortfolioData(){
-          if(allPortfolioIds.length !== 0){
-            const portfolio = await getPortfolio(allPortfolioIds[0])
-            calculatePortfolioValue(portfolio)
-            
-          }
-        
-        }
+      if(portfolioValue === 0){
         getPortfolioData()
+      }
+        
         
 
         const interval=setInterval(()=>{
           recordPortfolioValue(PricePoint(getCurrentDate(), portfolioValue), PORTFOLIO_ID).catch(err => setError(err.message))
           refreshOraclePrices()
-          // calculatePortfolioValue(portfolioValue)
-         },300000)
+          calculatePortfolioValue(portfolioPositions)
+         },90000)
            
          setLoading(false)
          return()=>clearInterval(interval)
          
       }, [])
 
+    async function getPortfolioData(){
+      
+      const portfolio = await getPortfolio(PORTFOLIO_ID)
+      calculatePortfolioValue(portfolio)
+
     
+    }
+
     function getCurrentDate(){
       var tempDate = new Date();
       var date = tempDate.getFullYear() + '-' + (tempDate.getMonth()+1) + '-' + tempDate.getDate() +' '+ tempDate.getHours()+':'+ tempDate.getMinutes()+':'+ tempDate.getSeconds();
@@ -53,20 +54,21 @@ export default function CryptoPortfolio() {
     function calculatePortfolioValue(portfolio){
       let totalSum = 0
       let positionsList = []
+      console.log(portfolio)
       const positions = portfolio.positions
       if(positions.length > 0){
         positions.forEach(position => {
           positionsList.push(position)
-          nomicsTickers.forEach(ticker => {
-            if(ticker.symbol === position.symbol){
-              if(position.type === "LP"){
-                //TODO: Add logic to calculate LPs
-              }
-              else{
-                totalSum += parseFloat(ticker.price) * position.quantity
-              }
+          console.log(nomicsTickers[position.symbol])
+          if(nomicsTickers[position.symbol]){
+            if(position.type === "LP"){
+              //TODO: Add logic to calculate LPs
             }
-          })
+            else{
+              totalSum += parseFloat(nomicsTickers[position.symbol].usd) * position.quantity
+            }
+          }
+
         })
       }
       setPortfolioValue(totalSum.toFixed(2))
@@ -80,7 +82,7 @@ export default function CryptoPortfolio() {
       setLoading(true)
       await addPosition(Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
       setLoading(false)
-      // this.forceUpdate()
+      
     }
 
     if(loading) {
