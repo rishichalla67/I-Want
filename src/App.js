@@ -6,10 +6,11 @@ import Home from './components/Home';
 import PrivateRoute from './components/Authentication/PrivateRoute';
 import { AuthProvider } from './contexts/AuthContext' 
 import { FirestoreProvider } from './contexts/FirestoreContext';
-import EditProfile from './components/EditProfile';
 import Profile from './components/Profile';
 import ForgotPassword from './components/Authentication/ForgotPassword';
 import Friends from './components/Friends';
+import CryptoPortfolio from './components/CryptoPortfolio';
+import { CryptoProvider } from './contexts/CryptoContext';
 
 function App() {
     return (
@@ -17,17 +18,19 @@ function App() {
             <Router>
                 <AuthProvider>
                     <FirestoreProvider>
-                        <Routes>
-                            {/* Protected Routes */}
-                            <Route exact path='/' element={<PrivateRoute><Home/></PrivateRoute>}/>
-                            <Route path='/profile' element={<PrivateRoute><Profile/></PrivateRoute>} />
-                            {/* <Route path='/edit-profile' element={<PrivateRoute><EditProfile/></PrivateRoute>} /> */}
-                            <Route path='/friends' element={<PrivateRoute><Friends/></PrivateRoute>} />
-                            {/* Public Routes */}
-                            <Route path='/login' element={<Login/>} />
-                            <Route path='/signup' element={<Signup/>} />
-                            <Route path='/forgot-password' element={<ForgotPassword/>} />
-                        </Routes>
+                        <CryptoProvider>
+                            <Routes>
+                                {/* Protected Routes */}
+                                <Route exact path='/' element={<PrivateRoute><Home/></PrivateRoute>}/>
+                                <Route path='/profile' element={<PrivateRoute><Profile/></PrivateRoute>} />
+                                <Route path='/friends' element={<PrivateRoute><Friends/></PrivateRoute>} />
+                                {/* Public Routes */}
+                                <Route path='/login' element={<Login/>} />
+                                <Route path='/signup' element={<Signup/>} />
+                                <Route path='/forgot-password' element={<ForgotPassword/>} />
+                                <Route path='rishi-crypto-portfolio' element={<CryptoPortfolio/>}/>
+                            </Routes>
+                        </CryptoProvider>
                     </FirestoreProvider>
                 </AuthProvider>
             </Router>

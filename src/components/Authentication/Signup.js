@@ -119,8 +119,6 @@ export default function Signup() {
             </label>
             <input
               id="username"
-              name="username"
-              type="username"
               ref={usernameRef}
               onChange={validateUsername}
               required

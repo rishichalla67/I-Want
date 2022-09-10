@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect, useContext, useState} from 'react'
 import {db} from '../firebase'
 import { useAuth } from './AuthContext'
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
 
 const FirestoreContext = React.createContext()
@@ -17,7 +17,59 @@ export function FirestoreProvider( { children } ) {
     const [allUsers, setAllUsers] = useState([])
     const [notifications, setNotifications] = useState([])
     const [loading, setLoading] = useState(true)
+    const [allPortfolioIds, setAllPortfolioIds] = useState([])
 
+    useEffect(() => {
+      if(allUsers.length === 0){
+          fetchAllUsers()
+          getUsers()
+          setLoading(false)
+        }
+        getPortfolioIds()
+  }, [])
+
+
+    // CRYPTO PORTFOLIO FUNCTIONS
+
+    async function getPortfolioIds(){
+      const portfolios = await db.collection("portfolios").get()
+      let ids = []
+      portfolios.forEach((portfolio) => {
+        ids.push(portfolio.id)
+      })
+      setAllPortfolioIds(ids)
+    }
+
+    async function getPortfolio(portfolioId){
+      const docRef = doc(db, "portfolios", portfolioId);
+      const portfolio = await getDoc(docRef);
+      if(portfolio.exists()){
+        return(portfolio.data())
+      }    
+    }
+
+    async function addPosition(position, portfolioName){
+      const portfolioPositionsRef = doc(db, "portfolios", portfolioName)
+      await updateDoc(portfolioPositionsRef, {
+        positions: arrayUnion(position)
+      })
+    }
+
+    async function removePosition(position, portfolioName){
+      const portfolioPositionsRef = doc(db, "portfolios", portfolioName)
+      await updateDoc(portfolioPositionsRef, {
+        positions: arrayRemove(position)
+      })
+    }
+
+    async function recordPortfolioValue(record, portfolioName){
+      const portfolioPositionsRef = doc(db, "portfolios", portfolioName)
+      await updateDoc(portfolioPositionsRef, {
+        portfolioValueHistory: arrayUnion(record)
+      })
+    }
+
+    // USER FUNCTIONALITY
 
     async function fetchAllUsers(){
         await db.collection("users").get()
@@ -69,13 +121,7 @@ export function FirestoreProvider( { children } ) {
       }
 
 
-    useEffect(() => {
-        if(allUsers.length === 0){
-            fetchAllUsers()
-            getUsers()
-            setLoading(false)
-          }
-    }, [])
+    
     
 
     const value = { 
@@ -83,7 +129,12 @@ export function FirestoreProvider( { children } ) {
         activeUser,
         getUsers,
         notifications,
-        refreshUser
+        refreshUser,
+        allPortfolioIds,
+        getPortfolio,
+        addPosition,
+        removePosition,
+        recordPortfolioValue
     }
 
   return (

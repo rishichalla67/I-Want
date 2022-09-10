@@ -17,13 +17,10 @@ export default function Login() {
         
         setError("")
         setLoading(true)
-        await login(emailRef.current.value, passwordRef.current.value)
-        .then(() => {
-          // getUser()
-          navigate('/')}
-          )
-        .catch(err => setError(err.message))
-        setLoading(false)
+        await login(emailRef.current.value, passwordRef.current.value).catch(err => setError(err.message))
+        await setLoading(false)
+        console.log(loading)
+        navigate('/')
     }
 
   return (

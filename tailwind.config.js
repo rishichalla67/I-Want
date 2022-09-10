@@ -5,8 +5,11 @@ module.exports = {
     minWidth: {
       '75%': '75%',
       '90%': '90%',
+      '95%': '95%',
     },
-
+    minHeight: {
+      '98vh': '98vh'
+    },
     extend: {},
   },
   plugins: [
