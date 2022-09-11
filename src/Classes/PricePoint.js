@@ -1,6 +1,6 @@
 export const PricePoint = (date, price) => {
     return {
-        name: date,
-        value: price
+        date: date,
+        value: parseFloat(price)
     }
 }

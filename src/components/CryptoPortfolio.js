@@ -4,6 +4,7 @@ import { useFirestore } from '../contexts/FirestoreContext'
 import {Position} from '../Classes/Position'
 import { PricePoint } from '../Classes/PricePoint'
 import debounce from 'lodash.debounce';
+import {ResponsiveContainer, Line, LineChart, XAxis, YAxis, Area, Tooltip, CartesianGrid} from "recharts"
 
 const PORTFOLIO_ID = "rishiChalla"
 
@@ -13,6 +14,7 @@ export default function CryptoPortfolio() {
     const typeRef = useRef()
     const searchRef = useRef()
     const [portfolioValue, setPortfolioValue] = useState(0)
+    const [portfolioValueHistory, setPortfolioValueHistory] = useState([])
     const [editPositions, setEditPositions] = useState(false)
     // const [searchResults, setSearchResults] = useState([])
     const [portfolioPositions, setPortfolioPositions] = useState([])
@@ -22,6 +24,7 @@ export default function CryptoPortfolio() {
     const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue } = useFirestore()
 
     useEffect(() => {
+      console.log(portfolioValueHistory)
       setLoading(true)
       if(portfolioValue === 0){
         getPortfolioData()
@@ -35,6 +38,7 @@ export default function CryptoPortfolio() {
         calculatePortfolioValue(portfolioPositions)
         },180000)
           
+        
         setLoading(false)
         return()=>clearInterval(interval)
          
@@ -43,6 +47,7 @@ export default function CryptoPortfolio() {
     async function getPortfolioData(){
       const portfolio = await getPortfolio(PORTFOLIO_ID)
       calculatePortfolioValue(portfolio)
+      setPortfolioValueHistory(portfolio.portfolioValueHistory)
     }
 
     function getCurrentDate(){
@@ -131,6 +136,17 @@ export default function CryptoPortfolio() {
             </div>  
             {!editPositions ? 
             <div className="flex flex-col justify-center px-4 py-5 sm:px-6 pt-10 border-gray-200">
+              {portfolioValueHistory.length > 0 && 
+              <div className="flex justify-center w-full">
+                <ResponsiveContainer width="100%" height={300 || 250}>
+                    <LineChart data={portfolioValueHistory} margin={{ top: 5, right: 30, bottom: 5 }}>
+                      <XAxis dataKey="date"/>
+                      <YAxis dataKey="value" tickLine={{ stroke: 'red' }}/>
+                      <Tooltip />
+                      <Line dataKey="value" stroke='#FFFFFF'/>
+                    </LineChart>
+                </ResponsiveContainer>
+              </div>}
               <div className="flex pb-2 border border-gray-200">
                 <a className="pl-3 text-white-500 text-2xl">-</a>
                   <h3 className="pl-3 pt-2 text-xl leading-6 text-sky-500 font-medium">Crypto</h3>
@@ -138,7 +154,7 @@ export default function CryptoPortfolio() {
                       Value
                     </div>
               </div>
-              
+        
               {portfolioPositions.map((position) => {
                 return(
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
@@ -150,6 +166,7 @@ export default function CryptoPortfolio() {
                       <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
                     
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
+                      {console.log(nomicsTickers[position.symbol])}
                       {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
                     </div>
                   </div> 
