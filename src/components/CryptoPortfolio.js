@@ -231,7 +231,7 @@ export default function CryptoPortfolio() {
                   />
                 </div>
               </div>
-            <div className="px-10 overflow-y-auto h-64">
+            <div className="px-10 overflow-y-auto h-48">
               {searchResults && searchResults.map(result => {
                   return(
                     <div className="flex justify-center">
