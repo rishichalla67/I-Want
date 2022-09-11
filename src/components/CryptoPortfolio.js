@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useCryptoOracle } from '../contexts/CryptoContext'
 import { useFirestore } from '../contexts/FirestoreContext'
 import {Position} from '../Classes/Position'
 import { PricePoint } from '../Classes/PricePoint'
+import debounce from 'lodash.debounce';
 
 const PORTFOLIO_ID = "rishiChalla"
 
@@ -72,6 +73,10 @@ export default function CryptoPortfolio() {
       setPortfolioPositions(positionsList)
       // recordPortfolioValue(PricePoint(getCurrentDate(), totalSum.toFixed(2)), PORTFOLIO_ID).catch(err => setError(err.message))
     }
+
+    const debouncedChangeHandler = useCallback(
+      debounce(handleSearchSubmit, 300)
+    , [])
 
     async function handleSearchSubmit(){
       
@@ -223,7 +228,7 @@ export default function CryptoPortfolio() {
                     id="search"
                     name="search"
                     autoComplete="off"
-                    onChange={handleSearchSubmit}
+                    onChange={debouncedChangeHandler}
                     ref={searchRef}
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
