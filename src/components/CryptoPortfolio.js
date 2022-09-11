@@ -167,7 +167,7 @@ export default function CryptoPortfolio() {
                       type="symbol"
                       ref={symbolRef}
                       required
-                      className="appearance-none rounded-none w-full relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="example: bitcoin"
                     />
                   </div>
@@ -183,7 +183,7 @@ export default function CryptoPortfolio() {
                       ref={quantityRef}
                       autoComplete="quantity"
                       required
-                      className="appearance-none rounded-none w-full relative block px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="example: .01"
                     />
                   </div>
@@ -198,7 +198,7 @@ export default function CryptoPortfolio() {
                       type="type"
                       ref={typeRef}
                       required
-                      className="appearance-none rounded-none w-full relative block  px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="examples: 'STAKE' or 'LP' or 'HOLD'"
                     />
                   </div>
@@ -211,13 +211,13 @@ export default function CryptoPortfolio() {
                       Add Position
                     </button>
                   </div>
-                  <div className="pt-2">
+                  <div className="pt-2 pb-2">
                     <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false)}}>Cancel</button>
                   </div>
                 </div>
               </form>
-              <div className="px-10" action="#" onSubmit={handleSubmit}>
-                <div className="pt-4 sm:px-6">
+              <div className="px-10 border-t" action="#" onSubmit={handleSubmit}>
+                <div className="pt-2 sm:px-6">
                   <h3 className="font-semibold">Search CoinGecko API</h3>
                   <input
                     id="search"
@@ -226,12 +226,12 @@ export default function CryptoPortfolio() {
                     onChange={handleSearchSubmit}
                     ref={searchRef}
                     required
-                    className="appearance-none rounded-none w-full relative block text-center px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Search..."
                   />
                 </div>
               </div>
-            <div className="px-10 overflow-y-auto h-48">
+            <div className="px-10 overflow-y-auto h-48 border-b">
               {searchResults && searchResults.map(result => {
                   return(
                     <div className="flex justify-center">
