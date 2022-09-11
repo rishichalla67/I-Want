@@ -203,10 +203,10 @@ export default function CryptoPortfolio() {
                       placeholder="examples: 'STAKE' or 'LP' or 'HOLD'"
                     />
                   </div>
-                  <div className="pt-2">
+                  <div className="pt-4">
                     <button
                       type="submit"
-                      className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className="bg-sky-500 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded"
                       disabled = {loading}
                     >
                       Add Position
@@ -217,7 +217,7 @@ export default function CryptoPortfolio() {
               </form>
               </div>}
               <div className="pt-2">
-                {editPositions ?  <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false)}}>Cancel</button> : <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(true)}}>Add Position</button>}
+                {editPositions ?  <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false)}}>Cancel</button> : <button className="bg-sky-500 hover:bg-sky-700 text-slate-100 font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(true)}}>Add Position</button>}
               </div>
           </div> 
         </div>
