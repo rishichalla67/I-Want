@@ -115,7 +115,7 @@ export default function CryptoPortfolio() {
     }
 
     return (
-      <div className="h-screen bg-gradient-to-r from-sky-400 via-sky-400 to-sky-500">
+      <div className="h-full bg-gradient-to-r from-sky-400 via-sky-400 to-sky-500">
         <div className="text-white pt-3 grid place-items-center">
           <div className="bg-black min-w-95% min-h-98vh md:max-w-5xl rounded-lg border border-slate-500 shadow-lg items-center ">
             
