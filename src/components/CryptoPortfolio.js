@@ -27,10 +27,12 @@ export default function CryptoPortfolio() {
         
 
         const interval=setInterval(()=>{
-          recordPortfolioValue(PricePoint(getCurrentDate(), portfolioValue), PORTFOLIO_ID).catch(err => setError(err.message))
+          if(portfolioValue !== 0){
+            recordPortfolioValue(PricePoint(getCurrentDate(), portfolioValue), PORTFOLIO_ID).catch(err => setError(err.message))
+          }
           refreshOraclePrices()
           calculatePortfolioValue(portfolioPositions)
-         },90000)
+         },180000)
            
          setLoading(false)
          return()=>clearInterval(interval)
@@ -38,11 +40,8 @@ export default function CryptoPortfolio() {
       }, [])
 
     async function getPortfolioData(){
-      
       const portfolio = await getPortfolio(PORTFOLIO_ID)
       calculatePortfolioValue(portfolio)
-
-    
     }
 
     function getCurrentDate(){
@@ -102,8 +101,8 @@ export default function CryptoPortfolio() {
           {!editPositions ? 
             <div>
               <div className="flex justify-center px-4 py-5 sm:px-6">
-                <h3 className="text-xl leading-6 font-medium">Crypto Portfolio</h3>
-                <button className="pl-10" onClick={() => {setEditPositions(true)}}>Add Profile</button>
+                <h3 className="text-xl leading-6 font-medium">Rishi's Crypto Portfolio</h3>
+                
               </div>
               {error && <div role="alert">
                 <div className="bg-red-500 text-white font-bold rounded-t px-4 py-2">
@@ -113,7 +112,7 @@ export default function CryptoPortfolio() {
                     <p>{error}</p>
                 </div>
               </div>}
-              <div className="flex border-t border-gray-200">
+              <div className="flex border-t border-b pb-2 border-gray-200">
                 <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`Portfolio Value: $${portfolioValue}`}</h3>
               </div>  
               {/* <LineChart width={730} height={250} data={}
@@ -126,20 +125,35 @@ export default function CryptoPortfolio() {
                 <Line type="monotone" dataKey="pv" stroke="#8884d8" />
                 <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
               </LineChart> */}
-              {portfolioPositions.map((position) => {
-                return(
-                  <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border-t border-gray-200">
-                    <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol} : ${position.quantity} - ${position.type}`}</h3>
-                    <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => removePosition(position, PORTFOLIO_ID)}>
-                      -
-                    </button>
-                  </div> 
-              )})}
+              <div className="flex flex-col justify-center px-4 py-5 sm:px-6 pt-10 border-gray-200">
+                <div className="flex pb-2 border border-gray-200">
+                  <a className="pl-3 text-white-500 text-2xl">-</a>
+                    <h3 className="pl-3 pt-2 text-xl leading-6 text-sky-500 font-medium">Crypto</h3>
+                <div className="grow pt-2 pr-3 text-xl leading-6 text-sky-500 font-medium text-right">
+                        Value
+                      </div>
+                </div>
+                
+                {portfolioPositions.map((position) => {
+                  return(
+                    <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
+
+                      
+                        <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => removePosition(position, PORTFOLIO_ID)}>
+                          -
+                        </button>
+                        <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
+                      
+                      <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
+                        {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
+                      </div>
+                    </div> 
+                )})}
+              </div>
             </div> :
             <div>
               <div className="flex justify-center px-4 py-5 sm:px-6">
                 <h3 className="text-xl leading-6 font-medium">Crypto Portfolio</h3>
-                <button className="pl-10" onClick={() => {setEditPositions(false)}}>Add Profile</button>
               </div>
               <form className="mt-8 mx-8" action="#" onSubmit={handleSubmit}>
                 <div className=" rounded-md shadow-sm -space-y-px">
@@ -202,6 +216,9 @@ export default function CryptoPortfolio() {
                 </div>
               </form>
               </div>}
+              <div className="pt-2">
+                {editPositions ?  <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false)}}>Cancel</button> : <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(true)}}>Add Position</button>}
+              </div>
           </div> 
         </div>
       </div>
