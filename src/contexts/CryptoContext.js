@@ -12,7 +12,7 @@ export function useCryptoOracle() {
 export function CryptoProvider( { children } ) {
     const [loading, setLoading] = useState(false)
     const [nomicsTickers, setNomicsTickers] = useState({})
-  
+    const [searchResults, setSearchResults] = useState([])
 
     useEffect(() => {
       refreshOraclePrices()
@@ -40,12 +40,25 @@ export function CryptoProvider( { children } ) {
           setLoading(false)
         })
     }
+
+    function searchCoinGeckoAPI(ticker){
+      fetch(`https://api.coingecko.com/api/v3/search?query=${ticker}`)
+        .then(response => response.json())
+        .then(searchResponse => {
+          console.log(searchResponse)
+          setSearchResults(searchResponse.coins)
+          return(searchResponse.coins)
+        })
+    }
+
     
 
     const value = { 
       nomicsTickers,
       refreshOraclePrices,
-      allTickers
+      allTickers,
+      searchCoinGeckoAPI,
+      searchResults
     }
 
   return (
