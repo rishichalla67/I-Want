@@ -21,10 +21,11 @@ export default function CryptoPortfolio() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
+    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker, getPortfolioTickerList } = useFirestore()
 
     useEffect(() => {
       setLoading(true)
+      console.log(nomicsTickers)
       if(portfolioValue === 0){
         getPortfolioData()
       }
@@ -101,7 +102,6 @@ export default function CryptoPortfolio() {
 
     function autofillAddPosition(value){
       symbolRef.current.value = value
-      console.log(value, symbolRef)
     }
 
     if(loading) {
@@ -157,6 +157,7 @@ export default function CryptoPortfolio() {
               </div>
         
               {portfolioPositions.map((position) => {
+                
                 return(
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
 

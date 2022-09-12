@@ -27,7 +27,7 @@ export function FirestoreProvider( { children } ) {
           setLoading(false)
         }
         getPortfolioIds()
-        refreshPortfolioTickerList()
+        getPortfolioTickerList()
   }, [])
 
 
@@ -42,7 +42,7 @@ export function FirestoreProvider( { children } ) {
       setAllPortfolioIds(ids)
     }
 
-    async function refreshPortfolioTickerList(){
+    async function getPortfolioTickerList(){
       const docRef = doc(db, "portfolios", "tickerList");
       const portfolio = await getDoc(docRef);
       if(portfolio.exists()){
@@ -53,10 +53,12 @@ export function FirestoreProvider( { children } ) {
     }
     
     async function addTicker(ticker){
-      const portfolioPositionsRef = doc(db, "portfolios", "tickerList")
-      await updateDoc(portfolioPositionsRef, {
-        tickers: arrayUnion(ticker)
-      })
+      if(!tickerList.includes(ticker)){
+        const portfolioPositionsRef = doc(db, "portfolios", "tickerList")
+        await updateDoc(portfolioPositionsRef, {
+          tickers: arrayUnion(ticker)
+        })
+      }
     }
 
     async function getPortfolio(portfolioId){
@@ -183,7 +185,8 @@ export function FirestoreProvider( { children } ) {
         recordPortfolioValue,
         cleanupDuplicatesInHistorical,
         tickerList,
-        addTicker
+        addTicker,
+        getPortfolioTickerList
     }
 
   return (
