@@ -20,12 +20,14 @@ export default function CryptoPortfolio() {
     const [portfolioPositions, setPortfolioPositions] = useState([])
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [showForm, setShowForm] = useState('invisible')
+    const [refreshPage, setRefreshPage] = useState(0)
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker, getPortfolioTickerList } = useFirestore()
+    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
 
     useEffect(() => {
       setLoading(true)
-      console.log(nomicsTickers)
+      
       if(portfolioValue === 0){
         getPortfolioData()
       }
@@ -40,7 +42,7 @@ export default function CryptoPortfolio() {
         setLoading(false)
         return()=>clearInterval(interval)
          
-      }, [])
+      }, [refreshPage])
 
     async function getPortfolioData(){
       const portfolio = await getPortfolio(PORTFOLIO_ID)
@@ -97,7 +99,7 @@ export default function CryptoPortfolio() {
       setLoading(true)
       await addPosition(Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
       setLoading(false)
-      
+      setRefreshPage(1)
     }
 
     function autofillAddPosition(value){
@@ -178,7 +180,32 @@ export default function CryptoPortfolio() {
               </div>
             </div> :
             <div>
-              <form className="mt-8 mx-8" action="#" onSubmit={handleSubmit}>
+              <div className="px-10 border-t" action="#" onSubmit={handleSubmit}>
+                <div className="pt-2 sm:px-6">
+                  <h3 className="font-semibold">Search CoinGecko API</h3>
+                  <input
+                    id="search"
+                    name="search"
+                    autoComplete="off"
+                    onChange={debouncedChangeHandler}
+                    ref={searchRef}
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Search..."
+                  />
+                </div>
+              </div>
+              <div className="px-10 overflow-y-auto h-48 border-b">
+                {searchResults && searchResults.map(result => {
+                    return(
+                      <div className="flex justify-center">
+                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol); setShowForm('block')}} key={result.id} className="pt-2">{result.api_symbol}</div>
+                      </div>
+                    )
+                  })
+                }
+              </div>
+              <form className={`mt-8 mx-8 ${showForm}`} action="#" onSubmit={handleSubmit}>
                 <div className=" rounded-md shadow-sm -space-y-px">
                   <div>
                   <h3 className="flex align-content-left font-semibold">Crypto Ticker</h3>
@@ -191,6 +218,7 @@ export default function CryptoPortfolio() {
                       type="symbol"
                       ref={symbolRef}
                       required
+                      readOnly
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="example: bitcoin"
                     />
@@ -240,31 +268,8 @@ export default function CryptoPortfolio() {
                   </div>
                 </div>
               </form>
-              <div className="px-10 border-t" action="#" onSubmit={handleSubmit}>
-                <div className="pt-2 sm:px-6">
-                  <h3 className="font-semibold">Search CoinGecko API</h3>
-                  <input
-                    id="search"
-                    name="search"
-                    autoComplete="off"
-                    onChange={debouncedChangeHandler}
-                    ref={searchRef}
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Search..."
-                  />
-                </div>
-              </div>
-            <div className="px-10 overflow-y-auto h-48 border-b">
-              {searchResults && searchResults.map(result => {
-                  return(
-                    <div className="flex justify-center">
-                      <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol)}} key={result.id} className="pt-2">{result.api_symbol}</div>
-                    </div>
-                  )
-                })
-              }
-            </div>
+              
+            
         </div>}
       </div> 
     </div>   
