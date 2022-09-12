@@ -19,9 +19,9 @@ export default function CryptoPortfolio() {
     // const [searchResults, setSearchResults] = useState([])
     const [portfolioPositions, setPortfolioPositions] = useState([])
     const [error, setError] = useState('')
+    const [successMessage, setSuccessMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [showForm, setShowForm] = useState('invisible')
-    const [refreshPage, setRefreshPage] = useState(0)
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
     const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
 
@@ -42,7 +42,7 @@ export default function CryptoPortfolio() {
         setLoading(false)
         return()=>clearInterval(interval)
          
-      }, [refreshPage])
+      }, [])
 
     async function getPortfolioData(){
       const portfolio = await getPortfolio(PORTFOLIO_ID)
@@ -98,8 +98,8 @@ export default function CryptoPortfolio() {
       
       setLoading(true)
       await addPosition(Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
+      setSuccessMessage('Successfully Added Position... Please Refresh')
       setLoading(false)
-      setRefreshPage(1)
     }
 
     function autofillAddPosition(value){
@@ -134,6 +134,14 @@ export default function CryptoPortfolio() {
                   <p>{error}</p>
               </div>
             </div>}
+            {successMessage && <div role="alert" onClick={() => {setSuccessMessage('')}}>
+              <div className="bg-green-500 text-black font-bold rounded-t px-4 py-2">
+                  Success!
+              </div>
+              <div className="border border-t-0 border-green-400 rounded-b bg-green-300 px-4 py-3 text-black">
+                  <p>{successMessage}</p>
+              </div>
+            </div>}
             <div className="flex border-t border-b pb-2 border-gray-200">
               <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`Portfolio Value: $${portfolioValue}`}</h3>
             </div>  
@@ -164,7 +172,7 @@ export default function CryptoPortfolio() {
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
 
                     
-                      <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position, PORTFOLIO_ID); }}>
+                      <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position, PORTFOLIO_ID); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
                         -
                       </button>
                       <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
@@ -257,18 +265,19 @@ export default function CryptoPortfolio() {
                   <div className="pt-4">
                     <button
                       type="submit"
+                      onClick={() => {setShowForm('invisible')}}
                       className="bg-sky-500 hover:bg-sky-700 text-black font-bold py-2 px-4 rounded"
                       disabled = {loading}
                     >
                       Add Position
                     </button>
                   </div>
-                  <div className="pt-2 pb-2">
-                    <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false)}}>Cancel</button>
-                  </div>
+                  
                 </div>
               </form>
-              
+              <div className="pt-2 pb-2">
+                    <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false); setError(''); setSuccessMessage('')}}>Cancel</button>
+              </div>
             
         </div>}
       </div> 
