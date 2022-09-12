@@ -24,18 +24,14 @@ export default function CryptoPortfolio() {
     const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue } = useFirestore()
 
     useEffect(() => {
-      console.log(portfolioValueHistory)
       setLoading(true)
       if(portfolioValue === 0){
         getPortfolioData()
       }
 
       const interval=setInterval(()=>{
-        if(portfolioValue !== 0){
-          recordPortfolioValue(PricePoint(getCurrentDate(), portfolioValue), PORTFOLIO_ID).catch(err => setError(err.message))
-        }
         refreshOraclePrices()
-        calculatePortfolioValue(portfolioPositions)
+        // calculatePortfolioValue(portfolioPositions)
         
         },180000)
           
@@ -145,8 +141,8 @@ export default function CryptoPortfolio() {
                     <LineChart data={portfolioValueHistory} margin={{ top: 5, right: 30, bottom: 5 }}>
                       <XAxis dataKey="date"/>
                       <YAxis dataKey="value" tickLine={{ stroke: 'red' }}/>
-                      <Tooltip />
-                      <Line type="natural" dataKey="value" stroke='#FFFFFF' dot={{ stroke: 'blue', strokeWidth: 2 }}/>
+                      <Tooltip style={{ color: 'red'}}/>
+                      <Line type="natural" dataKey="value" stroke='#0EA5E9' dot={false}/>
                     </LineChart>
                 </ResponsiveContainer>
               </div>}
