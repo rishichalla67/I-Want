@@ -69,6 +69,33 @@ export function FirestoreProvider( { children } ) {
       })
     }
 
+    async function cleanupDuplicatesInHistorical(portfolioName){
+      const docRef = doc(db, "portfolios", portfolioName);
+      const portfolio = await getDoc(docRef);
+      let duplicatePricePoints = []
+      const portfolioValueHistory = portfolio.data().portfolioValueHistory
+      if(portfolio.exists()){
+        let prev = 0
+        portfolioValueHistory.forEach((pricePoint) => {
+          if(prev === 0){
+            prev = pricePoint.value
+          }
+          else if(prev === pricePoint.value){
+            duplicatePricePoints.push(pricePoint)
+          }
+          prev = pricePoint.value
+        })
+      } 
+      if(duplicatePricePoints.length !== 0){
+        const portfolioPositionsRef = doc(db, "portfolios", portfolioName)
+        await updateDoc(portfolioPositionsRef, {
+          portfolioValueHistory: arrayRemove(...duplicatePricePoints)
+        })
+        console.log("Removed duplicate values: " + duplicatePricePoints)
+      }
+      
+    }
+
     // USER FUNCTIONALITY
 
     async function fetchAllUsers(){
@@ -134,7 +161,8 @@ export function FirestoreProvider( { children } ) {
         getPortfolio,
         addPosition,
         removePosition,
-        recordPortfolioValue
+        recordPortfolioValue,
+        cleanupDuplicatesInHistorical
     }
 
   return (

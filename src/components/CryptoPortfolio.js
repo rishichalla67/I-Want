@@ -21,7 +21,7 @@ export default function CryptoPortfolio() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue } = useFirestore()
+    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical } = useFirestore()
 
     useEffect(() => {
       setLoading(true)
@@ -33,7 +33,7 @@ export default function CryptoPortfolio() {
         refreshOraclePrices()
         // calculatePortfolioValue(portfolioPositions)
         
-        },180000)
+        },300000)
           
         
         setLoading(false)
@@ -43,6 +43,7 @@ export default function CryptoPortfolio() {
 
     async function getPortfolioData(){
       const portfolio = await getPortfolio(PORTFOLIO_ID)
+      cleanupDuplicatesInHistorical(PORTFOLIO_ID)
       calculatePortfolioValue(portfolio)
       setPortfolioValueHistory(portfolio.portfolioValueHistory)
     }
