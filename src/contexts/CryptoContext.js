@@ -1,5 +1,7 @@
 import React from 'react'
 import { useEffect, useContext, useState} from 'react'
+import { useFirestore } from '../contexts/FirestoreContext'
+
 
 const CryptoContext = React.createContext()
 
@@ -13,19 +15,23 @@ export function CryptoProvider( { children } ) {
     const [loading, setLoading] = useState(false)
     const [nomicsTickers, setNomicsTickers] = useState({})
     const [searchResults, setSearchResults] = useState([])
-    const [priceCurrencyList, setPriceCurrencyList] = useState(allTickers.join(","))
+    // const [priceCurrencyList, setPriceCurrencyList] = useState(allTickers.join(","))
+    const { tickerList } = useFirestore()
+
 
     useEffect(() => {
-      console.log(priceCurrencyList)
-      refreshOraclePrices()
-    }, [])
+      console.log(tickerList)
+      // if(tickerList.length > 0){
+        refreshOraclePrices()
+      // }
+    }, [tickerList])
 
     function refreshOraclePrices(){
       setNomicsTickers([])
       setLoading(true)
       // fetch("https://api.nomics.com/v1/currencies/ticker?key=f4335d03c35fda19304ee5a774da930698ac6ed1&per-page=100&ids=BTC,ETH,LUNA3,OSMO,JUNO,ATOM,RUNE,KUJI&interval=1h,30d")
-      console.log(`https://api.coingecko.com/api/v3/simple/price?ids=${priceCurrencyList}&vs_currencies=usd`)
-      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${priceCurrencyList}&vs_currencies=usd`)
+      console.log(`https://api.coingecko.com/api/v3/simple/price?ids=${tickerList.join(",")}&vs_currencies=usd`)
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${tickerList.join(",")}&vs_currencies=usd`)
         .then(response => response.json())
         .then(tickers => {
           console.log(tickers)

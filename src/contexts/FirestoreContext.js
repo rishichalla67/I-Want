@@ -18,6 +18,7 @@ export function FirestoreProvider( { children } ) {
     const [notifications, setNotifications] = useState([])
     const [loading, setLoading] = useState(true)
     const [allPortfolioIds, setAllPortfolioIds] = useState([])
+    const [tickerList, setTickerList] = useState([])
 
     useEffect(() => {
       if(allUsers.length === 0){
@@ -26,6 +27,7 @@ export function FirestoreProvider( { children } ) {
           setLoading(false)
         }
         getPortfolioIds()
+        refreshPortfolioTickerList()
   }, [])
 
 
@@ -38,6 +40,23 @@ export function FirestoreProvider( { children } ) {
         ids.push(portfolio.id)
       })
       setAllPortfolioIds(ids)
+    }
+
+    async function refreshPortfolioTickerList(){
+      const docRef = doc(db, "portfolios", "tickerList");
+      const portfolio = await getDoc(docRef);
+      if(portfolio.exists()){
+        console.log(portfolio.data().tickers)
+        setTickerList(portfolio.data().tickers)
+        return(portfolio.data().tickers)
+      }    
+    }
+    
+    async function addTicker(ticker){
+      const portfolioPositionsRef = doc(db, "portfolios", "tickerList")
+      await updateDoc(portfolioPositionsRef, {
+        tickers: arrayUnion(ticker)
+      })
     }
 
     async function getPortfolio(portfolioId){
@@ -91,7 +110,7 @@ export function FirestoreProvider( { children } ) {
         await updateDoc(portfolioPositionsRef, {
           portfolioValueHistory: arrayRemove(...duplicatePricePoints)
         })
-        console.log("Removed duplicate values: " + duplicatePricePoints)
+        console.log("Removed duplicate values: " + duplicatePricePoints.map((duplicate) => {return(duplicate.date, duplicate.value)}))
       }
       
     }
@@ -162,7 +181,9 @@ export function FirestoreProvider( { children } ) {
         addPosition,
         removePosition,
         recordPortfolioValue,
-        cleanupDuplicatesInHistorical
+        cleanupDuplicatesInHistorical,
+        tickerList,
+        addTicker
     }
 
   return (

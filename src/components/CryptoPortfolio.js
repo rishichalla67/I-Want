@@ -21,7 +21,7 @@ export default function CryptoPortfolio() {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical } = useFirestore()
+    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
 
     useEffect(() => {
       setLoading(true)
@@ -106,9 +106,10 @@ export default function CryptoPortfolio() {
 
     if(loading) {
       return (
-        <div className="h-screen bg-gradient-to-r from-sky-400 via-sky-400 to-sky-500 flex items-center justify-center space-x-2">
-          <div className="items-center spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full" role="status">
-            <span className="visually-hidden"></span>
+        <div className="h-full bg-gradient-to-r from-sky-400 via-sky-400 to-sky-500">
+          <div className="text-white pt-3 grid place-items-center">
+            <div className="bg-black min-w-95% min-h-98vh md:max-w-5xl rounded-lg border border-slate-500 shadow-lg items-center ">
+            </div>
           </div>
         </div>
       )
@@ -160,7 +161,7 @@ export default function CryptoPortfolio() {
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
 
                     
-                      <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => removePosition(position, PORTFOLIO_ID)}>
+                      <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position, PORTFOLIO_ID); }}>
                         -
                       </button>
                       <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
@@ -257,7 +258,7 @@ export default function CryptoPortfolio() {
               {searchResults && searchResults.map(result => {
                   return(
                     <div className="flex justify-center">
-                      <div onClick={() => autofillAddPosition(result.api_symbol)} key={result.id} className="pt-2">{result.api_symbol}</div>
+                      <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol)}} key={result.id} className="pt-2">{result.api_symbol}</div>
                     </div>
                   )
                 })
