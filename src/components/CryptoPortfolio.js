@@ -36,6 +36,7 @@ export default function CryptoPortfolio() {
         }
         refreshOraclePrices()
         calculatePortfolioValue(portfolioPositions)
+        
         },180000)
           
         
@@ -76,7 +77,9 @@ export default function CryptoPortfolio() {
       }
       setPortfolioValue(totalSum.toFixed(2))
       setPortfolioPositions(positionsList)
-      // recordPortfolioValue(PricePoint(getCurrentDate(), totalSum.toFixed(2)), PORTFOLIO_ID).catch(err => setError(err.message))
+      if(totalSum !== 0){
+        recordPortfolioValue(PricePoint(getCurrentDate(), totalSum), PORTFOLIO_ID).catch(err => setError(err.message))
+      }
     }
 
     const debouncedChangeHandler = useCallback(
@@ -143,7 +146,7 @@ export default function CryptoPortfolio() {
                       <XAxis dataKey="date"/>
                       <YAxis dataKey="value" tickLine={{ stroke: 'red' }}/>
                       <Tooltip />
-                      <Line dataKey="value" stroke='#FFFFFF'/>
+                      <Line type="natural" dataKey="value" stroke='#FFFFFF' dot={{ stroke: 'blue', strokeWidth: 2 }}/>
                     </LineChart>
                 </ResponsiveContainer>
               </div>}
@@ -166,7 +169,7 @@ export default function CryptoPortfolio() {
                       <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
                     
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
-                      {console.log(nomicsTickers[position.symbol])}
+                      {/* {console.log(nomicsTickers[position.symbol])} */}
                       {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
                     </div>
                   </div> 
