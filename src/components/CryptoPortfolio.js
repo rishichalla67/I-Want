@@ -138,9 +138,9 @@ export default function CryptoPortfolio() {
               {portfolioValueHistory.length > 0 && 
               <div className="flex justify-center w-full">
                 <ResponsiveContainer width="100%" height={300 || 250}>
-                    <LineChart data={portfolioValueHistory} margin={{ top: 5, right: 30, bottom: 5 }}>
+                    <LineChart data={portfolioValueHistory}>
                       <XAxis dataKey="date"/>
-                      <YAxis dataKey="value" tickLine={{ stroke: 'red' }}/>
+                      <YAxis dataKey="value" label ={"$"} tickLine={{ stroke: '#0EA5E9' }} domain={[parseInt(portfolioValue/2), parseInt(portfolioValue*1.2)]}/>
                       <Tooltip style={{ color: 'red'}}/>
                       <Line type="natural" dataKey="value" stroke='#0EA5E9' dot={false}/>
                     </LineChart>
