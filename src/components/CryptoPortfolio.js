@@ -103,22 +103,18 @@ export default function CryptoPortfolio() {
 
     async function handleSubmit(e) {
       e.preventDefault()
-      
+      let positionSymbol = ''
+      tickerNameList.forEach((ticker) => {
+        if(ticker.name === symbolRef.current.value){
+          positionSymbol = ticker.symbol
+        }
+      })
+      console.log(positionSymbol)
       setLoading(true)
-      await addPosition(Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
+      await addPosition(Position(positionSymbol, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
       setSuccessMessage('Successfully Added Position... Please Refresh')
       setLoading(false)
     }
-
-    // function getNameFromAPIMap(symbol){
-    //   tickerNameList.forEach((ticker) => {
-    //     console.log(ticker)
-    //     if(ticker.symbol === symbol){
-    //       console.log(ticker.name)
-    //       return(ticker.name)
-    //     }
-    //   })
-    // }
 
     function formatDataForTable(portfolio){
       //Columns: | - | Crypto | Quantity | Value (Caluculated)
@@ -220,6 +216,7 @@ export default function CryptoPortfolio() {
                     positionName = ticker.name
                   }
                 })
+                // let positionName = getNameFromAPIMap(position.symbol)
                 return(
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
 
@@ -258,7 +255,7 @@ export default function CryptoPortfolio() {
               <div className="px-10 overflow-y-auto h-48 border-b">
                 {searchResults && searchResults.map(result => {
                     return(
-                      <div className="flex justify-center" data-bs-toggle="tooltip" title={`Select to create a position for ${result.name}`}>
+                      <div className="flex justify-center hover:cursor-pointer hover:text-sky-500" data-bs-toggle="tooltip" title={`Select to create a position for ${result.name}`}>
                         <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker({name: result.name, symbol: result.api_symbol}); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
                       </div>
                     )
