@@ -5,6 +5,7 @@ import {Position} from '../Classes/Position'
 import { PricePoint } from '../Classes/PricePoint'
 import debounce from 'lodash.debounce';
 import {ResponsiveContainer, Line, LineChart, XAxis, YAxis, Area, Tooltip, CartesianGrid} from "recharts"
+import { DataGrid } from '@mui/x-data-grid';
 
 const PORTFOLIO_ID = "rishiChalla"
 
@@ -21,9 +22,15 @@ export default function CryptoPortfolio() {
     const [error, setError] = useState('')
     const [successMessage, setSuccessMessage] = useState('')
     const [loading, setLoading] = useState(false)
+    const [rows, setRows] = useState([])
+    const [columns, setColumns] = useState([
+      { field: 'symbol', headerName: 'Crypto', width: 130 },
+      { field: 'quantity', headerName: 'Quantity', width: 130 },
+      { field: 'price', headerName: 'Price', width: 130 }
+    ])
     const [showForm, setShowForm] = useState('invisible')
-    const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
+    const { positionPrices, refreshOraclePrices, searchCoinGeckoAPI, searchResults, tickerNameList } = useCryptoOracle()
+    const { getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
 
     useEffect(() => {
       setLoading(true)
@@ -42,10 +49,11 @@ export default function CryptoPortfolio() {
         setLoading(false)
         return()=>clearInterval(interval)
          
-      }, [])
+      }, [portfolioPositions])
 
     async function getPortfolioData(){
       const portfolio = await getPortfolio(PORTFOLIO_ID)
+      formatDataForTable(portfolio)
       cleanupDuplicatesInHistorical(PORTFOLIO_ID)
       calculatePortfolioValue(portfolio)
       setPortfolioValueHistory(portfolio.portfolioValueHistory)
@@ -64,12 +72,12 @@ export default function CryptoPortfolio() {
       if(positions.length > 0){
         positions.forEach(position => {
           positionsList.push(position)
-          if(nomicsTickers[position.symbol]){
+          if(positionPrices[position.symbol]){
             if(position.type === "LP"){
               //TODO: Add logic to calculate LPs
             }
             else{
-              totalSum += parseFloat(nomicsTickers[position.symbol].usd) * position.quantity
+              totalSum += parseFloat(positionPrices[position.symbol].usd) * position.quantity
             }
           }
 
@@ -100,6 +108,34 @@ export default function CryptoPortfolio() {
       await addPosition(Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
       setSuccessMessage('Successfully Added Position... Please Refresh')
       setLoading(false)
+    }
+
+    // function getNameFromAPIMap(symbol){
+    //   tickerNameList.forEach((ticker) => {
+    //     console.log(ticker)
+    //     if(ticker.symbol === symbol){
+    //       console.log(ticker.name)
+    //       return(ticker.name)
+    //     }
+    //   })
+    // }
+
+    function formatDataForTable(portfolio){
+      //Columns: | - | Crypto | Quantity | Value (Caluculated)
+      let idIndex = 1
+      let rows = []
+      portfolio.positions.forEach(position => {
+        rows.push({
+          'id': idIndex,
+          'symbol': position.symbol,
+          'quantity': position.quantity,
+          'price': position.quantity*parseFloat(positionPrices[position.symbol].usd)
+        })
+        idIndex += 1
+      })
+      console.log(rows)
+      console.log(columns)
+      setRows(rows)
     }
 
     function autofillAddPosition(value){
@@ -166,8 +202,24 @@ export default function CryptoPortfolio() {
                     </div>
               </div>
         
-              {portfolioPositions.map((position) => {
-                
+                {/* <div className="h-96">
+                  <DataGrid
+                  rows={rows}
+                  columns={columns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  checkboxSelection
+                  height={300}
+                />
+                </div> */}
+              
+              {tickerNameList && portfolioPositions.map((position) => {
+                let positionName = ''
+                tickerNameList.forEach((ticker) => {
+                  if(ticker.symbol === position.symbol){
+                    positionName = ticker.name
+                  }
+                })
                 return(
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
 
@@ -175,11 +227,11 @@ export default function CryptoPortfolio() {
                       <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position, PORTFOLIO_ID); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
                         -
                       </button>
-                      <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
+                      <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${positionName}`}</h3>
                     
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
                       {/* {console.log(nomicsTickers[position.symbol])} */}
-                      {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
+                      {`$${(parseFloat(position.quantity)*parseFloat(positionPrices[position.symbol].usd)).toFixed(2)}`}
                     </div>
                   </div> 
               )})}
@@ -206,8 +258,8 @@ export default function CryptoPortfolio() {
               <div className="px-10 overflow-y-auto h-48 border-b">
                 {searchResults && searchResults.map(result => {
                     return(
-                      <div className="flex justify-center">
-                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol); setShowForm('block')}} key={result.id} className="pt-2">{result.api_symbol}</div>
+                      <div className="flex justify-center" data-bs-toggle="tooltip" title={`Select to create a position for ${result.name}`}>
+                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker({name: result.name, symbol: result.api_symbol}); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
                       </div>
                     )
                   })
@@ -276,7 +328,7 @@ export default function CryptoPortfolio() {
                 </div>
               </form>
               <div className="pt-2 pb-2">
-                    <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false); setError(''); setSuccessMessage('')}}>Cancel</button>
+                    <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false); setError(''); setSuccessMessage(''); setShowForm('invisible')}}>Cancel</button>
               </div>
             
         </div>}
