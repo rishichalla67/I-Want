@@ -2,7 +2,10 @@ import React from 'react'
 import { useEffect, useContext, useState} from 'react'
 import { useFirestore } from '../contexts/FirestoreContext'
 
+
 const CryptoContext = React.createContext()
+
+export const allTickers = ['bitcoin', 'kujira', 'cosmos', 'terra-luna-2', 'juno-network', 'evmos', 'osmosis', 'ethereum']
 
 export function useCryptoOracle() { 
     return useContext(CryptoContext)
@@ -10,31 +13,40 @@ export function useCryptoOracle() {
 
 export function CryptoProvider( { children } ) {
     const [loading, setLoading] = useState(false)
-    const [positionPrices, setPositionPrices] = useState({})
+    const [nomicsTickers, setNomicsTickers] = useState({})
     const [searchResults, setSearchResults] = useState([])
-    const [tickerNameList, setTickerNameList] = useState([])
+    // const [priceCurrencyList, setPriceCurrencyList] = useState(allTickers.join(","))
     const { getPortfolioTickerList } = useFirestore()
 
 
     useEffect(() => {
-      refreshOraclePrices()
+      // console.log(tickerList)
+      // if(tickerList.length > 0){
+        refreshOraclePrices()
+      // }
     }, [])
 
     async function refreshOraclePrices(){
       const tickerList = await getPortfolioTickerList()
-      setTickerNameList(tickerList)
-
-      const tickers = tickerList.map(ticker => ticker.symbol)
-      console.log(tickers)
-      setPositionPrices([])
+      setNomicsTickers([])
       setLoading(true)
       // fetch("https://api.nomics.com/v1/currencies/ticker?key=f4335d03c35fda19304ee5a774da930698ac6ed1&per-page=100&ids=BTC,ETH,LUNA3,OSMO,JUNO,ATOM,RUNE,KUJI&interval=1h,30d")
-      console.log(`https://api.coingecko.com/api/v3/simple/price?ids=${tickers.join(",")}&vs_currencies=usd`)
-      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${tickers.join(",")}&vs_currencies=usd`)
+      console.log(`https://api.coingecko.com/api/v3/simple/price?ids=${tickerList.join(",")}&vs_currencies=usd`)
+      fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${tickerList.join(",")}&vs_currencies=usd`)
         .then(response => response.json())
         .then(tickers => {
           console.log(tickers)
-          setPositionPrices(tickers)
+          // let tempTickers = []
+          // allTickers.forEach(ticker => {
+          //   let tempTicker = {
+          //     symbol: ticker,
+          //     price: tickers[ticker].usd
+          //   }
+            
+          //   tempTickers.push(tempTicker)
+          // })
+          // console.log(tempTickers)
+          setNomicsTickers(tickers)
           setLoading(false)
         })
     }
@@ -49,12 +61,14 @@ export function CryptoProvider( { children } ) {
         })
     }
 
+    
+
     const value = { 
-      positionPrices,
+      nomicsTickers,
       refreshOraclePrices,
+      allTickers,
       searchCoinGeckoAPI,
-      searchResults,
-      tickerNameList
+      searchResults
     }
 
   return (

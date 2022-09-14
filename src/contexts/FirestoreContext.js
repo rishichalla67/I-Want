@@ -47,8 +47,7 @@ export function FirestoreProvider( { children } ) {
       const portfolio = await getDoc(docRef);
       if(portfolio.exists()){
         console.log(portfolio.data().tickers)
-        const tickerList = portfolio.data().tickers
-        setTickerList(tickerList)
+        setTickerList(portfolio.data().tickers)
         return(portfolio.data().tickers)
       }    
     }
@@ -113,6 +112,7 @@ export function FirestoreProvider( { children } ) {
         await updateDoc(portfolioPositionsRef, {
           portfolioValueHistory: arrayRemove(...duplicatePricePoints)
         })
+        console.log("Removed duplicate values: " + duplicatePricePoints.map((duplicate) => {return(duplicate.date, duplicate.value)}))
       }
       
     }
