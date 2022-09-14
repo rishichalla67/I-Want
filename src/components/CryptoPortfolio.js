@@ -283,7 +283,7 @@ export default function CryptoPortfolio() {
                   <div className="pt-2 ">
                     <h3 className="flex align-content-left font-semibold">Quantity</h3>
                     <label htmlFor="quantity" className="sr-only">
-                      Quantity
+                      Quantity 
                     </label>
                     <input
                       id="quantity"
