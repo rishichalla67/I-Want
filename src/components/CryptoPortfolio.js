@@ -169,7 +169,7 @@ export default function CryptoPortfolio() {
               {portfolioPositions.map((position) => {
                 
                 return(
-                  <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200">
+                  <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200 hover:text-sky-400">
 
                     
                       <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position, PORTFOLIO_ID); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
@@ -206,8 +206,8 @@ export default function CryptoPortfolio() {
               <div className="px-10 overflow-y-auto h-48 border-b">
                 {searchResults && searchResults.map(result => {
                     return(
-                      <div className="flex justify-center">
-                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol); setShowForm('block')}} key={result.id} className="pt-2">{result.api_symbol}</div>
+                      <div className="flex justify-center hover:cursor-pointer hover:text-sky-400" tooltip={`Select to start making a position`}>
+                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
                       </div>
                     )
                   })
@@ -276,7 +276,7 @@ export default function CryptoPortfolio() {
                 </div>
               </form>
               <div className="pt-2 pb-2">
-                    <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false); setError(''); setSuccessMessage('')}}>Cancel</button>
+                    <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false); setError(''); setSuccessMessage(''); setShowForm('invisible')}}>Cancel</button>
               </div>
             
         </div>}
