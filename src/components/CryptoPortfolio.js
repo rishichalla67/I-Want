@@ -178,7 +178,7 @@ export default function CryptoPortfolio() {
                       <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
                     
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
-                      {/* {console.log(nomicsTickers[position.symbol])} */}
+                      {console.log(nomicsTickers[position.symbol])}
                       {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
                     </div>
                   </div> 
