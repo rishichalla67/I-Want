@@ -79,6 +79,8 @@ export default function CryptoPortfolio() {
         })
       }
       setPortfolioValue(totalSum.toFixed(2))
+      // Sort list descending order by position value
+      positionsList.sort((a,b) => ((parseFloat(nomicsTickers[a.symbol].usd) * a.quantity) < (parseFloat(nomicsTickers[b.symbol].usd) * b.quantity)) ? 1 : (((parseFloat(nomicsTickers[b.symbol].usd) * b.quantity) < (parseFloat(nomicsTickers[a.symbol].usd) * a.quantity)) ? -1 : 0))
       setPortfolioPositions(positionsList)
       if(totalSum !== 0){
         recordPortfolioValue(PricePoint(getCurrentDate(), totalSum), PORTFOLIO_ID).catch(err => setError(err.message))
@@ -153,7 +155,7 @@ export default function CryptoPortfolio() {
                     <LineChart data={portfolioValueHistory}>
                       <XAxis dataKey="date"/>
                       <YAxis dataKey="value" label ={"$"} tickLine={{ stroke: '#0EA5E9' }} domain={[parseInt(portfolioValue/2), parseInt(portfolioValue*1.5)]}/>
-                      <Tooltip style={{ color: 'red'}}/>
+                      <Tooltip style={{ color: 'red'}} contentStyle={{backgroundColor: '#000000'}} itemStyle={{ color: '#FFFFFF' }}/>
                       <Line type="natural" dataKey="value" stroke='#0EA5E9' dot={false}/>
                     </LineChart>
                 </ResponsiveContainer>
@@ -175,7 +177,7 @@ export default function CryptoPortfolio() {
                       <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
                         -
                       </button>
-                      <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
+                      <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol} (${(position.type).toLowerCase()})`}</h3>
                     
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
                       {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
@@ -188,8 +190,8 @@ export default function CryptoPortfolio() {
             </div> :
             <div>
               <div className="px-10 border-t" action="#" onSubmit={handleSubmit}>
-                <div className="pt-2 sm:px-6">
-                  <h3 className="font-semibold">Search CoinGecko API</h3>
+                <div className="pt-4 sm:px-6">
+                  {/* <h3 className="font-semibold pb-2"></h3> */}
                   <input
                     id="search"
                     name="search"
@@ -198,7 +200,7 @@ export default function CryptoPortfolio() {
                     ref={searchRef}
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Search..."
+                    placeholder="Search CoinGecko API..."
                   />
                 </div>
               </div>

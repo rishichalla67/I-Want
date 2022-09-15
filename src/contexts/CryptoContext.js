@@ -30,7 +30,7 @@ export function CryptoProvider( { children } ) {
       fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${tickerList.join(",")}&vs_currencies=usd`)
         .then(response => response.json())
         .then(tickers => {
-          console.log(tickers)
+          // console.log(tickers)
           setNomicsTickers(tickers)
           setLoading(false)
         })

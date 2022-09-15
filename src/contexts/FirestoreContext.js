@@ -56,7 +56,7 @@ export function FirestoreProvider( { children } ) {
       const docRef = doc(db, "portfolios", "tickerList");
       const portfolio = await getDoc(docRef);
       if(portfolio.exists()){
-        console.log(portfolio.data().tickers)
+        // console.log(portfolio.data().tickers)
         setTickerList(portfolio.data().tickers)
         return(portfolio.data().tickers)
       }    
