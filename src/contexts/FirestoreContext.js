@@ -26,8 +26,18 @@ export function FirestoreProvider( { children } ) {
           getUsers()
           setLoading(false)
         }
+      if(allPortfolioIds.length === 0){
         getPortfolioIds()
         getPortfolioTickerList()
+      }
+      const interval=setInterval(()=>{
+        // calculatePortfolioValue(portfolioPositions)
+        
+        },300000)
+          
+        
+        setLoading(false)
+        return()=>clearInterval(interval)
   }, [])
 
 
@@ -76,7 +86,7 @@ export function FirestoreProvider( { children } ) {
       })
     }
 
-    async function removePosition(position, portfolioName){
+    async function removePositionFromFirebase(position, portfolioName){
       const portfolioPositionsRef = doc(db, "portfolios", portfolioName)
       await updateDoc(portfolioPositionsRef, {
         positions: arrayRemove(position)
@@ -181,7 +191,7 @@ export function FirestoreProvider( { children } ) {
         allPortfolioIds,
         getPortfolio,
         addPosition,
-        removePosition,
+        removePositionFromFirebase,
         recordPortfolioValue,
         cleanupDuplicatesInHistorical,
         tickerList,

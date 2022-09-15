@@ -23,25 +23,20 @@ export default function CryptoPortfolio() {
     const [loading, setLoading] = useState(false)
     const [showForm, setShowForm] = useState('invisible')
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePosition, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
+    const { allPortfolioIds, getPortfolio, addPosition, removePositionFromFirebase, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
 
     useEffect(() => {
       setLoading(true)
-      
       if(portfolioValue === 0){
         getPortfolioData()
       }
 
       const interval=setInterval(()=>{
-        refreshOraclePrices()
-        // calculatePortfolioValue(portfolioPositions)
-        
-        },300000)
-          
-        
-        setLoading(false)
-        return()=>clearInterval(interval)
-         
+        refreshOraclePrices()        
+      },300000)
+
+      setLoading(false)
+      return()=>clearInterval(interval)
       }, [])
 
     async function getPortfolioData(){
@@ -55,6 +50,15 @@ export default function CryptoPortfolio() {
       var tempDate = new Date();
       var date = tempDate.getFullYear() + '-' + (tempDate.getMonth()+1) + '-' + tempDate.getDate() +' '+ tempDate.getHours()+':'+ tempDate.getMinutes()+':'+ tempDate.getSeconds();
       return(date)
+    }
+
+    function removePosition(position){
+      // console.log(portfolioPositions)
+      let index = portfolioPositions.indexOf(position)
+      if(index !== -1){
+        portfolioPositions.splice(index) 
+      }
+      removePositionFromFirebase(position, PORTFOLIO_ID)
     }
 
     function calculatePortfolioValue(portfolio){
@@ -72,7 +76,6 @@ export default function CryptoPortfolio() {
               totalSum += parseFloat(nomicsTickers[position.symbol].usd) * position.quantity
             }
           }
-
         })
       }
       setPortfolioValue(totalSum.toFixed(2))
@@ -87,10 +90,7 @@ export default function CryptoPortfolio() {
     , [])
 
     async function handleSearchSubmit(){
-      
-      const searchResponse = await searchCoinGeckoAPI(searchRef.current.value)
-      console.log(searchResponse)
-      // setSearchResults(searchResponse)
+      await searchCoinGeckoAPI(searchRef.current.value)
     }
 
     async function handleSubmit(e) {
@@ -152,7 +152,7 @@ export default function CryptoPortfolio() {
                 <ResponsiveContainer width="100%" height={300 || 250}>
                     <LineChart data={portfolioValueHistory}>
                       <XAxis dataKey="date"/>
-                      <YAxis dataKey="value" label ={"$"} tickLine={{ stroke: '#0EA5E9' }} domain={[parseInt(portfolioValue/2), parseInt(portfolioValue*1.2)]}/>
+                      <YAxis dataKey="value" label ={"$"} tickLine={{ stroke: '#0EA5E9' }} domain={[parseInt(portfolioValue/2), parseInt(portfolioValue*1.5)]}/>
                       <Tooltip style={{ color: 'red'}}/>
                       <Line type="natural" dataKey="value" stroke='#0EA5E9' dot={false}/>
                     </LineChart>
@@ -160,7 +160,7 @@ export default function CryptoPortfolio() {
               </div>}
               <div className="flex pb-2 border border-gray-200">
                 <a className="pl-3 text-white-500 text-2xl">-</a>
-                  <h3 className="pl-3 pt-2 text-xl leading-6 text-sky-500 font-medium">Crypto</h3>
+                <h3 className="pl-3 pt-2 text-xl leading-6 text-sky-500 font-medium">Crypto</h3>
               <div className="grow pt-2 pr-3 text-xl leading-6 text-sky-500 font-medium text-right">
                       Value
                     </div>
@@ -172,13 +172,12 @@ export default function CryptoPortfolio() {
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200 hover:text-sky-400">
 
                     
-                      <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position, PORTFOLIO_ID); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
+                      <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
                         -
                       </button>
                       <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol}`}</h3>
                     
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
-                      {console.log(nomicsTickers[position.symbol])}
                       {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
                     </div>
                   </div> 
@@ -206,7 +205,7 @@ export default function CryptoPortfolio() {
               <div className="px-10 overflow-y-auto h-48 border-b">
                 {searchResults && searchResults.map(result => {
                     return(
-                      <div className="flex justify-center hover:cursor-pointer hover:text-sky-400" tooltip={`Select to start making a position`}>
+                      <div className="flex justify-center hover:cursor-pointer hover:text-sky-400" data-tooltip={`Select to start making a position`}>
                         <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
                       </div>
                     )
@@ -278,7 +277,6 @@ export default function CryptoPortfolio() {
               <div className="pt-2 pb-2">
                     <button className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded" onClick={() => {setEditPositions(false); setError(''); setSuccessMessage(''); setShowForm('invisible')}}>Cancel</button>
               </div>
-            
         </div>}
       </div> 
     </div>   
