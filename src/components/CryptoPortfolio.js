@@ -39,7 +39,7 @@ export default function CryptoPortfolio() {
 
       setLoading(false)
       return()=>clearInterval(interval)
-      }, [])
+      }, [portfolioPositions])
 
     async function getPortfolioData(){
       const portfolio = await getPortfolio(PORTFOLIO_ID)
@@ -151,7 +151,7 @@ export default function CryptoPortfolio() {
               </div>
             </div>}
             <div className="flex border-t border-b pb-2 border-gray-200">
-              <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`Portfolio Value: $${portfolioValue}`}</h3>
+              <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`Portfolio Value: $${portfolioValue.toString().toLocaleString()}`}</h3>
             </div>  
             {!editPositions ? 
             <div className="flex flex-col justify-center px-4 py-5 sm:px-6 pt-10 border-gray-200">
@@ -160,9 +160,9 @@ export default function CryptoPortfolio() {
                 <ResponsiveContainer width="100%" height={300 || 250}>
                     <LineChart data={portfolioValueHistory}>
                       <XAxis dataKey="date"/>
-                      <YAxis dataKey="value" label ={"$"} tickLine={{ stroke: '#0EA5E9' }} domain={[parseInt(portfolioValue/2), parseInt(portfolioValue*1.5)]}/>
+                      <YAxis dataKey="value" label ={"$"} tickLine={{ stroke: '#0092ff' }} domain={[parseInt(portfolioValue/2), parseInt(portfolioValue*1.5)]}/>
                       <Tooltip style={{ color: 'red'}} contentStyle={{backgroundColor: '#000000'}} itemStyle={{ color: '#FFFFFF' }}/>
-                      <Line type="natural" dataKey="value" stroke='#0EA5E9' dot={false}/>
+                      <Line type="natural" dataKey="value" stroke='#0092ff' dot={false}/>
                     </LineChart>
                 </ResponsiveContainer>
               </div>}
