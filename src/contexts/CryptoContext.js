@@ -23,7 +23,9 @@ export function CryptoProvider( { children } ) {
     }, [])
 
     async function refreshOraclePrices(){
-      const tickerList = await getPortfolioTickerList()
+      let tickerList = await getPortfolioTickerList()
+      // tickerList = Object.keys(tickerList)
+      console.log()
       setNomicsTickers([])
       setLoading(true)
       // fetch("https://api.nomics.com/v1/currencies/ticker?key=f4335d03c35fda19304ee5a774da930698ac6ed1&per-page=100&ids=BTC,ETH,LUNA3,OSMO,JUNO,ATOM,RUNE,KUJI&interval=1h,30d")

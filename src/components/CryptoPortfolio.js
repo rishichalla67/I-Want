@@ -5,6 +5,7 @@ import {Position} from '../Classes/Position'
 import { PricePoint } from '../Classes/PricePoint'
 import debounce from 'lodash.debounce';
 import {ResponsiveContainer, Line, LineChart, XAxis, YAxis, Tooltip} from "recharts"
+import { Ticker } from '../Classes/Ticker'
 
 const PORTFOLIO_ID = "rishiChalla"
 
@@ -151,7 +152,7 @@ export default function CryptoPortfolio() {
               </div>
             </div>}
             <div className="flex border-t border-b pb-2 border-gray-200">
-              <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`Portfolio Value: $${portfolioValue.toString().toLocaleString()}`}</h3>
+              <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`Portfolio Value: $${portfolioValue}`}</h3>
             </div>  
             {!editPositions ? 
             <div className="flex flex-col justify-center px-4 py-5 sm:px-6 pt-10 border-gray-200">
@@ -210,9 +211,10 @@ export default function CryptoPortfolio() {
               </div>
               <div className="px-10 overflow-y-auto h-48 border-b">
                 {searchResults && searchResults.map(result => {
+                  // console.log(result)
                     return(
                       <div className="flex justify-center hover:cursor-pointer hover:text-sky-400" data-tooltip={`Select to start making a position`}>
-                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(result.api_symbol); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
+                        <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(Ticker(result.name, result.api_symbol)); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
                       </div>
                     )
                   })
