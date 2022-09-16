@@ -4,7 +4,7 @@ import { useFirestore } from '../contexts/FirestoreContext'
 import {Position} from '../Classes/Position'
 import { PricePoint } from '../Classes/PricePoint'
 import debounce from 'lodash.debounce';
-import {ResponsiveContainer, Line, LineChart, XAxis, YAxis, Area, Tooltip, CartesianGrid} from "recharts"
+import {ResponsiveContainer, Line, LineChart, XAxis, YAxis, Tooltip} from "recharts"
 
 const PORTFOLIO_ID = "rishiChalla"
 
@@ -25,6 +25,8 @@ export default function CryptoPortfolio() {
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
     const { allPortfolioIds, getPortfolio, addPosition, removePositionFromFirebase, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
 
+    
+    
     useEffect(() => {
       setLoading(true)
       if(portfolioValue === 0){
@@ -81,6 +83,7 @@ export default function CryptoPortfolio() {
       setPortfolioValue(totalSum.toFixed(2))
       // Sort list descending order by position value
       positionsList.sort((a,b) => ((parseFloat(nomicsTickers[a.symbol].usd) * a.quantity) < (parseFloat(nomicsTickers[b.symbol].usd) * b.quantity)) ? 1 : (((parseFloat(nomicsTickers[b.symbol].usd) * b.quantity) < (parseFloat(nomicsTickers[a.symbol].usd) * a.quantity)) ? -1 : 0))
+
       setPortfolioPositions(positionsList)
       if(totalSum !== 0){
         recordPortfolioValue(PricePoint(getCurrentDate(), totalSum), PORTFOLIO_ID).catch(err => setError(err.message))
@@ -99,8 +102,11 @@ export default function CryptoPortfolio() {
       e.preventDefault()
       
       setLoading(true)
-      await addPosition(Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value), PORTFOLIO_ID).catch(err => setError(err.message))
-      setSuccessMessage('Successfully Added Position... Please Refresh')
+      let positionToAdd = Position(symbolRef.current.value, quantityRef.current.value, typeRef.current.value)
+      portfolioPositions.push(positionToAdd)
+      await addPosition(positionToAdd, PORTFOLIO_ID).catch(err => setError(err.message))
+      setSuccessMessage(`Successfully added ${positionToAdd.symbol} to your positions`)
+      setEditPositions(false)
       setLoading(false)
     }
 
@@ -163,9 +169,7 @@ export default function CryptoPortfolio() {
               <div className="flex pb-2 border border-gray-200">
                 <a className="pl-3 text-white-500 text-2xl">-</a>
                 <h3 className="pl-3 pt-2 text-xl leading-6 text-sky-500 font-medium">Crypto</h3>
-              <div className="grow pt-2 pr-3 text-xl leading-6 text-sky-500 font-medium text-right">
-                      Value
-                    </div>
+                <div className="grow pt-2 pr-3 text-xl leading-6 text-sky-500 font-medium text-right">Value</div>
               </div>
         
               {portfolioPositions.map((position) => {
