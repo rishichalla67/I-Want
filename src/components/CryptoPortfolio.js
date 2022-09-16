@@ -24,7 +24,7 @@ export default function CryptoPortfolio() {
     const [loading, setLoading] = useState(false)
     const [showForm, setShowForm] = useState('invisible')
     const { nomicsTickers, refreshOraclePrices, searchCoinGeckoAPI, searchResults } = useCryptoOracle()
-    const { allPortfolioIds, getPortfolio, addPosition, removePositionFromFirebase, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker } = useFirestore()
+    const { allPortfolioIds, getPortfolio, addPosition, removePositionFromFirebase, recordPortfolioValue, cleanupDuplicatesInHistorical, addTicker, tickerList } = useFirestore()
 
     
     
@@ -107,12 +107,19 @@ export default function CryptoPortfolio() {
       portfolioPositions.push(positionToAdd)
       await addPosition(positionToAdd, PORTFOLIO_ID).catch(err => setError(err.message))
       setSuccessMessage(`Successfully added ${positionToAdd.symbol} to your positions`)
+      refreshOraclePrices()
       setEditPositions(false)
       setLoading(false)
     }
 
     function autofillAddPosition(value){
       symbolRef.current.value = value
+    }
+
+    function calculatePositionValue(position){
+      if(nomicsTickers[position.symbol] !== undefined){
+        return((parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2))
+      }
     }
 
     if(loading) {
@@ -174,18 +181,14 @@ export default function CryptoPortfolio() {
               </div>
         
               {portfolioPositions.map((position) => {
-                
                 return(
                   <div key={`${position.symbol}-${position.quantity}-${position.type}`} className="flex pb-2 border border-gray-200 hover:text-sky-400">
-
-                    
                       <button type="button" className="pl-3 text-red-500 text-2xl" onClick={() => {removePosition(position); setSuccessMessage('Successfully removed ' + position.symbol + ' from positions.')}}>
                         -
                       </button>
-                      <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${position.symbol} (${(position.type).toLowerCase()})`}</h3>
-                    
+                      <h3 className="pl-3 pt-2 text-xl leading-6 font-medium">{`${tickerList[position.symbol]} (${(position.type).toLowerCase()})`}</h3>
                     <div className="grow pt-2 pr-1 text-xl leading-6 font-medium text-right">
-                      {`$${(parseFloat(position.quantity)*parseFloat(nomicsTickers[position.symbol].usd)).toFixed(2)}`}
+                      {`$${calculatePositionValue(position)}`}
                     </div>
                   </div> 
               )})}
@@ -213,7 +216,7 @@ export default function CryptoPortfolio() {
                 {searchResults && searchResults.map(result => {
                   // console.log(result)
                     return(
-                      <div className="flex justify-center hover:cursor-pointer hover:text-sky-400" data-tooltip={`Select to start making a position`}>
+                      <div key={`${result.api_symbol}`} className="flex justify-center hover:cursor-pointer hover:text-sky-400" data-tooltip={`Select to start making a position`}>
                         <div onClick={() => {autofillAddPosition(result.api_symbol); addTicker(Ticker(result.name, result.api_symbol)); setShowForm('block')}} key={result.id} className="pt-2">{result.name}</div>
                       </div>
                     )

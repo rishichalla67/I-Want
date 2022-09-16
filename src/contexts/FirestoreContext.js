@@ -56,17 +56,17 @@ export function FirestoreProvider( { children } ) {
       const docRef = doc(db, "portfolios", "tickerList");
       const portfolio = await getDoc(docRef);
       if(portfolio.exists()){
-        console.log(portfolio.data().cryptoList.map(crypto => crypto.apiSymbol))
-        setTickerList(portfolio.data().cryptoList.map(crypto => crypto.apiSymbol))
-        return(portfolio.data().cryptoList.map(crypto => crypto.apiSymbol))
+        setTickerList(portfolio.data().tickerList)
+        return(portfolio.data().tickerList)
       }    
     }
     
     async function addTicker(ticker){
-      if(!tickerList.includes(ticker.apiSymbol)){
+      if(!tickerList[ticker.apiSymbol]){
+        console.log(ticker)
         const portfolioPositionsRef = doc(db, "portfolios", "tickerList")
         await updateDoc(portfolioPositionsRef, {  
-          cryptoList: arrayUnion(ticker)
+          [`tickerList.${ticker.apiSymbol}`]: ticker.displayName
         })
       }
     }

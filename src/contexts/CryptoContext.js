@@ -24,7 +24,7 @@ export function CryptoProvider( { children } ) {
 
     async function refreshOraclePrices(){
       let tickerList = await getPortfolioTickerList()
-      // tickerList = Object.keys(tickerList)
+      tickerList = Object.keys(tickerList)
       console.log()
       setNomicsTickers([])
       setLoading(true)
