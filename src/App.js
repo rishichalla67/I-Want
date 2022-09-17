@@ -24,11 +24,11 @@ function App() {
                                 <Route exact path='/' element={<PrivateRoute><Home/></PrivateRoute>}/>
                                 <Route path='/profile' element={<PrivateRoute><Profile/></PrivateRoute>} />
                                 <Route path='/friends' element={<PrivateRoute><Friends/></PrivateRoute>} />
+                                <Route path='/portfolio' element={<PrivateRoute><CryptoPortfolio/></PrivateRoute>} />
                                 {/* Public Routes */}
                                 <Route path='/login' element={<Login/>} />
                                 <Route path='/signup' element={<Signup/>} />
                                 <Route path='/forgot-password' element={<ForgotPassword/>} />
-                                <Route path='rishi-crypto-portfolio' element={<CryptoPortfolio/>}/>
                             </Routes>
                         </CryptoProvider>
                     </FirestoreProvider>

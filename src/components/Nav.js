@@ -47,6 +47,7 @@ export default function Nav() {
   const navigation = [
     { name: 'Feed', href: '/', current: true },
     { name: 'Friends', href: '/Friends', current: true },
+    { name: 'Portfolio', href: '/portfolio', current: true }
 
   ]
 
