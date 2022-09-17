@@ -145,8 +145,8 @@ export default function CryptoPortfolio() {
   }
 
   async function submitCreateNewPortfolio() {
-    await createPortfolio(portfolioNameRef.current.value, activeUser.id);
-    refreshUser(activeUser.id);
+    await createPortfolio(activeUser.username, activeUser.id);
+    // refreshUser(activeUser.id);
   }
 
   async function handleSubmit(e) {
@@ -460,11 +460,11 @@ export default function CryptoPortfolio() {
                     It looks like this is your first time here...
                   </h3>
                 </div>
-                <div className="px-10 py-10 border-t" action="#">
+                <div className="px-10 py-10 " action="#">
                   <div className="flex justify-center pt-4 sm:px-6">
                     {/* <h3 className="font-semibold pb-2"></h3> */}
 
-                    <input
+                    {/* <input
                       id="search"
                       name="search"
                       autoComplete="off"
@@ -472,7 +472,7 @@ export default function CryptoPortfolio() {
                       required
                       className="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="Enter Portfolio Name"
-                    />
+                    /> */}
                     <button
                       className="bg-sky-500 hover:bg-sky-700 text-black font-bold py-2 px-4 rounded"
                       onClick={() => {

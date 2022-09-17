@@ -62,7 +62,7 @@ export function FirestoreProvider({ children }) {
         portfolioID: portfolioId,
       })
       .then(() => {
-        refreshUser(portfolioId);
+        refreshUser(userId);
         console.log(`PortfolioID updated: ${portfolioId}`);
       });
   }
