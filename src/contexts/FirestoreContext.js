@@ -110,6 +110,16 @@ export function FirestoreProvider({ children }) {
     });
   }
 
+  async function updatePosition(originalPosition, newPosition, portfolioName) {
+    const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
+    await updateDoc(portfolioPositionsRef, {
+      positions: arrayRemove(originalPosition),
+    });
+    await updateDoc(portfolioPositionsRef, {
+      positions: arrayUnion(newPosition),
+    });
+  }
+
   async function removePositionFromFirebase(position, portfolioName) {
     const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
     await updateDoc(portfolioPositionsRef, {
@@ -224,6 +234,7 @@ export function FirestoreProvider({ children }) {
     addTicker,
     getPortfolioTickerList,
     createPortfolio,
+    updatePosition,
   };
 
   return (
