@@ -89,11 +89,13 @@ export default function CryptoPortfolio() {
 
   function removePosition(position) {
     // console.log(portfolioPositions)
-    let index = portfolioPositions.indexOf(position);
-    if (index !== -1) {
-      portfolioPositions.splice(index);
+    if (portfolioPositions.length > 0) {
+      let index = portfolioPositions.indexOf(position);
+      if (index !== -1) {
+        portfolioPositions.splice(index, 1);
+      }
+      removePositionFromFirebase(position, activeUser.portfolioID);
     }
-    removePositionFromFirebase(position, activeUser.portfolioID);
   }
 
   function calculatePortfolioValue(portfolio) {
