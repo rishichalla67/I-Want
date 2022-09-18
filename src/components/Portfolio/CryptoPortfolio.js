@@ -112,12 +112,6 @@ export default function CryptoPortfolio() {
       }
       removePositionFromFirebase(position, activeUser.portfolioID);
     }
-    console.log(
-      parseFloat(
-        portfolioValue -
-          parseFloat(position.quantity) * nomicsTickers[position.symbol].usd
-      ).toFixed(2)
-    );
     setPortfolioValue(
       parseFloat(
         portfolioValue -
@@ -202,8 +196,6 @@ export default function CryptoPortfolio() {
 
   async function updateSelectedPosition(e) {
     e.preventDefault();
-    console.log(updateQuantityRef.current.value === "");
-    console.log(updateTypeRef.current.value);
 
     await updatePosition(
       selectedPosition,

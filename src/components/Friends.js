@@ -6,11 +6,11 @@ import { arrayRemove, arrayUnion } from "firebase/firestore";
 import { Notification } from "../Classes/Notification";
 
 export default function Friends() {
-  const { allUsers, activeUser, getUsers } = useFirestore();
+  const { allUsers, activeUser, fetchAllUsers } = useFirestore();
   const [error, setError] = useState([]);
 
   useEffect(() => {
-    getUsers();
+    fetchAllUsers();
   }, []);
 
   const addFriend = async (friendID, friendUsername) => {
@@ -21,7 +21,7 @@ export default function Friends() {
         friends: arrayUnion(friendUsername),
       })
       .then(() => {
-        getUsers();
+        fetchAllUsers();
         updateNotification(friendID);
       });
   };
@@ -42,7 +42,7 @@ export default function Friends() {
       })
       .then(() => {
         console.log("Requested " + friendID + "to friends list");
-        getUsers();
+        fetchAllUsers();
       });
   }
 
@@ -55,7 +55,7 @@ export default function Friends() {
       })
       .then(() => {
         console.log("Removed " + friendUsername + "from friends list");
-        getUsers();
+        fetchAllUsers();
       });
   };
 

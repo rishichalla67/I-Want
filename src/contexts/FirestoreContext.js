@@ -150,32 +150,29 @@ export function FirestoreProvider({ children }) {
   // USER FUNCTIONALITY
 
   async function fetchAllUsers() {
-    await dbUsersCollection
-      .get()
-      .then((snapshot) => {
-        if (snapshot.docs.length > 0) {
-          const tempUsers = [];
-          snapshot.docs.forEach((user) => {
-            if (user.data().email === currentUser.email) {
-              setActiveUser(user.data());
-              setNotifications(user.data().notifications);
-            }
-            tempUsers.push({
-              id: user.data().id,
-              firstName: user.data().firstName ? user.data().firstName : "",
-              lastName: user.data().lastName ? user.data().lastName : "",
-              photo: user.data().photo ? user.data().photo : "",
-              friends: user.data().friends ? user.data().friends : [],
-              notifications: user.data().notifications
-                ? user.data().notifications
-                : [],
-              username: user.data().username,
-            });
+    await dbUsersCollection.get().then((snapshot) => {
+      if (snapshot.docs.length > 0) {
+        const tempUsers = [];
+        snapshot.docs.forEach((user) => {
+          if (user.data().email === currentUser.email) {
+            setActiveUser(user.data());
+            setNotifications(user.data().notifications);
+          }
+          tempUsers.push({
+            id: user.data().id,
+            firstName: user.data().firstName ? user.data().firstName : "",
+            lastName: user.data().lastName ? user.data().lastName : "",
+            photo: user.data().photo ? user.data().photo : "",
+            friends: user.data().friends ? user.data().friends : [],
+            notifications: user.data().notifications
+              ? user.data().notifications
+              : [],
+            username: user.data().username,
           });
-          setAllUsers(tempUsers);
-        }
-      })
-      .catch();
+        });
+        setAllUsers(tempUsers);
+      }
+    });
   }
 
   async function refreshUser(id) {
@@ -212,6 +209,7 @@ export function FirestoreProvider({ children }) {
     getPortfolioTickerList,
     createPortfolio,
     updatePosition,
+    fetchAllUsers,
   };
 
   return (
