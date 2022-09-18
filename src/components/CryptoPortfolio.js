@@ -106,7 +106,6 @@ export default function CryptoPortfolio() {
   }
 
   function removePosition(position) {
-    // console.log(portfolioPositions)
     if (portfolioPositions.length > 0) {
       let index = portfolioPositions.indexOf(position);
       if (index !== -1) {
@@ -120,15 +119,12 @@ export default function CryptoPortfolio() {
           (parseFloat(position.quantity) * nomicsTickers[position.symbol].usd)
       ).toFixed(2)
     );
-    console.log(portfolioValue);
-    // console.log(nomicsTickers[position.symbol]);
     setPortfolioValue(
       parseFloat(
         portfolioValue *
           (parseFloat(position.quantity) * nomicsTickers[position.symbol].usd)
       ).toFixed(2)
     );
-    console.log(portfolioValue);
     setShowModal(false);
     setChecked(false);
   }
