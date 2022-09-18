@@ -32,8 +32,6 @@ export function FirestoreProvider({ children }) {
   useEffect(() => {
     if (allUsers.length === 0) {
       fetchAllUsers();
-      getUsers();
-      setLoading(false);
     }
     if (allPortfolioIds.length === 0) {
       getPortfolioIds();
@@ -46,15 +44,10 @@ export function FirestoreProvider({ children }) {
   // CRYPTO PORTFOLIO FUNCTIONS
 
   function createPortfolio(portfolioId, userId) {
-    dbPortfolioCollection
-      .doc(portfolioId)
-      .set({
-        portfolioValueHistory: [],
-        positions: [],
-      })
-      .then((docRef) => {
-        console.log(`Portfolio Created: ${docRef}`);
-      });
+    dbPortfolioCollection.doc(portfolioId).set({
+      portfolioValueHistory: [],
+      positions: [],
+    });
 
     dbUsersCollection
       .doc(userId)
@@ -63,7 +56,6 @@ export function FirestoreProvider({ children }) {
       })
       .then(() => {
         refreshUser(userId);
-        console.log(`PortfolioID updated: ${portfolioId}`);
       });
   }
 
@@ -191,26 +183,22 @@ export function FirestoreProvider({ children }) {
     const user = await getDoc(docRef);
     if (user.exists()) {
       setActiveUser(user.data());
-      console.log(user.data());
     }
   }
 
-  async function getUsers() {
+  async function getActiveUser() {
     const data = await dbUsersCollection.get();
-    const temp = [];
     data.docs.forEach((item) => {
       if (item.data().email === currentUser.email) {
         setActiveUser(item.data());
-        temp.push(item.data());
       }
     });
-    return temp;
   }
 
   const value = {
     allUsers,
     activeUser,
-    getUsers,
+    getActiveUser,
     notifications,
     refreshUser,
     allPortfolioIds,

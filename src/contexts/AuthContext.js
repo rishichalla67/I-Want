@@ -1,81 +1,54 @@
-import React from 'react'
-import { useEffect, useContext, useState} from 'react'
-import {auth, db} from '../firebase'
+import React from "react";
+import { useEffect, useContext, useState } from "react";
+import { auth } from "../firebase";
 
-const AuthContext = React.createContext()
+const AuthContext = React.createContext();
 
-export function useAuth() { 
-    return useContext(AuthContext)
+export function useAuth() {
+  return useContext(AuthContext);
 }
 
-export function AuthProvider( { children } ) {
-    const [currentUser, setCurrentUser] = useState()
-    const [allUsers, setAllUsers] = useState([])
-    const [loading, setLoading] = useState(true)
+export function AuthProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState();
+  const [allUsers, setAllUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    function signup(email, password){
-        return auth.createUserWithEmailAndPassword(email, password)
-    }
+  function signup(email, password) {
+    return auth.createUserWithEmailAndPassword(email, password);
+  }
 
-    function login(email, password){
-        return auth.signInWithEmailAndPassword(email, password)
-    }
+  function login(email, password) {
+    return auth.signInWithEmailAndPassword(email, password);
+  }
 
-    function logout(){
-        return auth.signOut()
-    }
+  function logout() {
+    return auth.signOut();
+  }
 
-    function resetPassword(email) {
-        return auth.sendPasswordResetEmail(email)
-    }
+  function resetPassword(email) {
+    return auth.sendPasswordResetEmail(email);
+  }
 
-    // async function fetchAllUsers(){
-    //     await db.collection("users").get()
-    //     .then((snapshot) => {
-    //       console.log(snapshot)
-    //       if(snapshot.docs.length > 0){
-    //         console.log(snapshot.docs.length)
-    //         const tempUsers = []
-    //         snapshot.docs.forEach((user)=>{
-    //           tempUsers.push({
-    //             id: user.data().id,
-    //             firstName: user.data().firstName?user.data().firstName:'',
-    //             lastName: user.data().lastName?user.data().lastName:'',
-    //             photo: user.data().photo?user.data().photo:'',
-    //             friends: user.data().friends?user.data().friends:[]
-    //           })
-              
-    //         })
-    //         setAllUsers(tempUsers)
-    //       }
-    //     }).catch()
-    //   }
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
-    // function getUser(){
-    //     getUsers()
-    // }
-
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUser(user)
-            setLoading(false)
-        })
-        return unsubscribe
-    }, [])
-    
-
-    const value = { 
-        currentUser,
-        login,
-        logout,
-        signup,
-        resetPassword,
-        allUsers
-    }
+  const value = {
+    currentUser,
+    login,
+    logout,
+    signup,
+    resetPassword,
+    allUsers,
+  };
 
   return (
     <AuthContext.Provider value={value}>
-        {!loading && children}
+      {!loading && children}
     </AuthContext.Provider>
-  )
+  );
 }

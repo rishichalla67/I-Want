@@ -6,10 +6,10 @@ import React, {
   Fragment,
 } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { useCryptoOracle } from "../contexts/CryptoContext";
-import { useFirestore } from "../contexts/FirestoreContext";
-import { Position } from "../Classes/Position";
-import { PricePoint } from "../Classes/PricePoint";
+import { useCryptoOracle } from "../../contexts/CryptoContext";
+import { useFirestore } from "../../contexts/FirestoreContext";
+import { Position } from "../../Classes/Position";
+import { PricePoint } from "../../Classes/PricePoint";
 import debounce from "lodash.debounce";
 import {
   ResponsiveContainer,
@@ -19,8 +19,8 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import { Ticker } from "../Classes/Ticker";
-import Nav from "./Nav.js";
+import { Ticker } from "../../Classes/Ticker";
+import Nav from "../Nav.js";
 
 export default function CryptoPortfolio() {
   const symbolRef = useRef();
@@ -114,14 +114,14 @@ export default function CryptoPortfolio() {
     }
     console.log(
       parseFloat(
-        portfolioValue *
-          (parseFloat(position.quantity) * nomicsTickers[position.symbol].usd)
+        portfolioValue -
+          parseFloat(position.quantity) * nomicsTickers[position.symbol].usd
       ).toFixed(2)
     );
     setPortfolioValue(
       parseFloat(
-        portfolioValue *
-          (parseFloat(position.quantity) * nomicsTickers[position.symbol].usd)
+        portfolioValue -
+          parseFloat(position.quantity) * nomicsTickers[position.symbol].usd
       ).toFixed(2)
     );
     setShowModal(false);

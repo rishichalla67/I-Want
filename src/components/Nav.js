@@ -3,7 +3,6 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useAuth } from "../contexts/AuthContext";
 import { useFirestore } from "../contexts/FirestoreContext";
-import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 
 function classNames(...classes) {
@@ -15,14 +14,14 @@ export default function Nav() {
   const { logout } = useAuth();
   const [error, setError] = useState();
   const [notifications, setNotifications] = useState();
-  const { allUsers, activeUser, getUsers } = useFirestore();
+  const { activeUser, getActiveUser, allUsers } = useFirestore();
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    getUsers();
+    getActiveUser();
     const temp = [];
     if (activeUser.notifications !== undefined && notifications) {
-      activeUser.notifications.map(function (notif) {
+      activeUser.notifications.forEach((notif) => {
         // console.log("notif: " + notif.requesterID)
         temp.push(notif.requesterID);
       });
