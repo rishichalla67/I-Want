@@ -25,6 +25,10 @@ export function FirestoreProvider({ children }) {
   const [allPortfolioIds, setAllPortfolioIds] = useState([]);
   const [tickerList, setTickerList] = useState([]);
 
+  const dbPortfolioCollection = db.collection("portfolios");
+  const tickerListDocRef = doc(db, "portfolios", "tickerList");
+  const dbUsersCollection = db.collection("users");
+
   useEffect(() => {
     if (allUsers.length === 0) {
       fetchAllUsers();
@@ -35,18 +39,14 @@ export function FirestoreProvider({ children }) {
       getPortfolioIds();
       getPortfolioTickerList();
     }
-    const interval = setInterval(() => {
-      // calculatePortfolioValue(portfolioPositions)
-    }, 300000);
 
     setLoading(false);
-    return () => clearInterval(interval);
   }, []);
 
   // CRYPTO PORTFOLIO FUNCTIONS
 
   function createPortfolio(portfolioId, userId) {
-    db.collection("portfolios")
+    dbPortfolioCollection
       .doc(portfolioId)
       .set({
         portfolioValueHistory: [],
@@ -56,7 +56,7 @@ export function FirestoreProvider({ children }) {
         console.log(`Portfolio Created: ${docRef}`);
       });
 
-    db.collection("users")
+    dbUsersCollection
       .doc(userId)
       .update({
         portfolioID: portfolioId,
@@ -68,7 +68,7 @@ export function FirestoreProvider({ children }) {
   }
 
   async function getPortfolioIds() {
-    const portfolios = await db.collection("portfolios").get();
+    const portfolios = await dbPortfolioCollection.get();
     let ids = [];
     portfolios.forEach((portfolio) => {
       ids.push(portfolio.id);
@@ -77,8 +77,7 @@ export function FirestoreProvider({ children }) {
   }
 
   async function getPortfolioTickerList() {
-    const docRef = doc(db, "portfolios", "tickerList");
-    const portfolio = await getDoc(docRef);
+    const portfolio = await getDoc(tickerListDocRef);
     if (portfolio.exists()) {
       setTickerList(portfolio.data().tickerList);
       return portfolio.data().tickerList;
@@ -88,8 +87,7 @@ export function FirestoreProvider({ children }) {
   async function addTicker(ticker) {
     if (!tickerList[ticker.apiSymbol]) {
       console.log(ticker);
-      const portfolioPositionsRef = doc(db, "portfolios", "tickerList");
-      await updateDoc(portfolioPositionsRef, {
+      await updateDoc(tickerListDocRef, {
         [`tickerList.${ticker.apiSymbol}`]: ticker.displayName,
       });
     }
@@ -151,24 +149,16 @@ export function FirestoreProvider({ children }) {
       });
     }
     if (duplicatePricePoints.length !== 0) {
-      const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
-      await updateDoc(portfolioPositionsRef, {
+      await updateDoc(docRef, {
         portfolioValueHistory: arrayRemove(...duplicatePricePoints),
       });
-      console.log(
-        "Removed duplicate values: " +
-          duplicatePricePoints.map((duplicate) => {
-            return duplicate.date, duplicate.value;
-          })
-      );
     }
   }
 
   // USER FUNCTIONALITY
 
   async function fetchAllUsers() {
-    await db
-      .collection("users")
+    await dbUsersCollection
       .get()
       .then((snapshot) => {
         if (snapshot.docs.length > 0) {
@@ -206,8 +196,7 @@ export function FirestoreProvider({ children }) {
   }
 
   async function getUsers() {
-    const response = db.collection("users");
-    const data = await response.get();
+    const data = await dbUsersCollection.get();
     const temp = [];
     data.docs.forEach((item) => {
       if (item.data().email === currentUser.email) {

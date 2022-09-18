@@ -63,7 +63,6 @@ export default function CryptoPortfolio() {
     addTicker,
     tickerList,
     createPortfolio,
-    refreshUser,
     updatePosition,
   } = useFirestore();
 
@@ -79,7 +78,7 @@ export default function CryptoPortfolio() {
 
     setLoading(false);
     return () => clearInterval(interval);
-  }, [portfolioPositions]);
+  }, []);
 
   async function getPortfolioData() {
     const portfolio = await getPortfolio(activeUser.portfolioID);
@@ -137,13 +136,8 @@ export default function CryptoPortfolio() {
       positions.forEach((position) => {
         positionsList.push(position);
         if (nomicsTickers[position.symbol]) {
-          if (position.type === "LP") {
-            //TODO: Add logic to calculate LPs
-          } else {
-            totalSum +=
-              parseFloat(nomicsTickers[position.symbol].usd) *
-              position.quantity;
-          }
+          totalSum +=
+            parseFloat(nomicsTickers[position.symbol].usd) * position.quantity;
         }
       });
     }
@@ -179,7 +173,6 @@ export default function CryptoPortfolio() {
 
   async function submitCreateNewPortfolio() {
     await createPortfolio(activeUser.username, activeUser.id);
-    // refreshUser(activeUser.id);
   }
 
   async function handleSubmit(e) {

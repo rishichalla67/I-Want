@@ -28,7 +28,7 @@ export default function Nav() {
       });
       setNotifications(temp);
     }
-  }, [activeUser]);
+  }, []);
 
   async function handleLogout() {
     setError("");
