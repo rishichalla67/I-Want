@@ -1,9 +1,11 @@
-export const Notification = (username, msg, id, first) => {
+export const Notification = (username, msg, id, requesterUsername, first, notificationType) => {
     return {
-        checked: false,
+        username: username,
         message: msg,
         requesterID: id,
-        username: username,
-        firstName: first
+        requesterUsername: requesterUsername,
+        firstName: first,
+        notificationType: notificationType,
+        checked: false
     }
 }

@@ -5,6 +5,8 @@ import { db } from "../firebase";
 import { arrayRemove, arrayUnion } from "firebase/firestore";
 import { Notification } from "../Classes/Notification";
 import { TabList, Tab, TabPanel } from 'react-tabs';
+import Button from '@material-ui/core/Button';
+
 
 export default function Friends() {
   const { allUsers, activeUser, fetchAllUsers } = useFirestore();
@@ -14,9 +16,9 @@ export default function Friends() {
   useEffect(() => {
     fetchAllUsers();
   }, []);
-
+  
   const addFriend = async (friendID, friendUsername) => {
-    //
+    // DECOM
     await db
       .collection("users")
       .doc(activeUser.id)
@@ -25,28 +27,89 @@ export default function Friends() {
       })
       .then(() => {
         fetchAllUsers();
-        updateNotification(friendID);
+        sendFriendRequest(friendID);
       });
   };
 
-  async function updateNotification(friendID) {
+  async function sendFriendRequest(friendID, friendUsername) {
     await db
       .collection("users")
       .doc(friendID)
       .update({
         notifications: arrayUnion(
           Notification(
-            activeUser.username,
+            friendUsername,
             " has requested to be your friend...",
             activeUser.id,
-            activeUser.firstName
+            activeUser.username,
+            activeUser.firstName,
+            "friendRequest"
           )
         ),
       })
       .then(() => {
-        console.log("Requested " + friendID + "to friends list");
+        console.log("Requested " + friendID + " to friends list");
         fetchAllUsers();
       });
+
+      await db
+      .collection("users")
+      .doc(activeUser.id)
+      .update({
+        notifications: arrayUnion(
+          Notification(
+            friendUsername,
+            " has recieved your friend request",
+            activeUser.id,
+            activeUser.username,
+            activeUser.firstName,
+            "pendingFriendRequest"
+          )
+        ),
+      })
+      .then(() => {
+        fetchAllUsers();
+      });
+  }
+
+  async function removeNotification(id, notification) {
+    await db
+      .collection("users")
+      .doc(id)
+      .update({
+        notifications: arrayRemove(
+          notification
+        ),
+      })
+      .then(() => {
+        fetchAllUsers();
+      });
+  }
+
+  const acceptFriendRequest = async (notification) => {
+    await db
+    .collection("users")
+    .doc(activeUser.id)
+    .update({
+      friends: arrayUnion(notification.requesterUsername),
+    })
+    .then(() => {
+      fetchAllUsers();
+      removeNotification(activeUser.id, notification);
+    });
+    await db
+    .collection("users")
+    .doc(notification.requesterID)
+    .update({
+      friends: arrayUnion(activeUser.username),
+    })
+    .then(() => {
+      let notif = notification;
+      notif.message = " has recieved your friend request"
+      console.log(notif)
+      removeNotification(notif.requesterID, notif)
+      fetchAllUsers();
+    });
   }
 
   const removeFriend = async (friendUsername) => {
@@ -79,7 +142,7 @@ export default function Friends() {
     <>
       <Nav />
       <div className="pt-10 grid place-items-center">
-        <div className="p-3 min-w-90% md:max-w-5xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center">
+        <div className="p-3 max-w-55% md:max-w-5xl md: bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center">
           <div className="relative flex-1 flex flex-col">
             {error && error}
             <div className="bg-gray-100 px-2 py-1 border-b border-gray-200">
@@ -179,14 +242,59 @@ export default function Friends() {
                   <div className="p-6 flex-auto">
                     <ul className="list-reset">
                       {activeUser.notifications.map((notif) => {
-                        return (
-                          <li className="my-4 text-slate-500 text-lg leading-relaxed" key={notif.requesterID}>
-                            <div className="bg-blue-200 rounded-md p-2">
-                              <span className="font-semibold block text-center text-sm text-black">{notif.username}</span>
-                              <p className="text-sm text-center">{notif.message}</p>
-                            </div>
-                          </li>
-                        );
+                        if(notif.notificationType === "friendRequest"){
+                          return (
+                            <li className="my-4 text-slate-500 text-lg leading-relaxed" key={notif.requesterID}>
+                              <div className="bg-blue-200 rounded-md p-2 flex justify-between">
+                                <div className="flex-auto text-left">
+                                  <p className="font-semibold block text-sm text-black">{notif.requesterUsername}</p>
+                                  <p className="text-sm text-left">{notif.message}</p>
+                                </div>
+                                <div className="flex p-2">
+                                  <button onClick={() => acceptFriendRequest(notif)} className="rounded-lg w-24 h-8 flex items-center justify-center bg-green-400 text-gray-800 font-bold mx-2 py-2 px-4">
+                                    Accept
+                                  </button>
+                                  <button 
+                                     onClick={() => {
+                                      removeNotification(activeUser.id,notif)
+                                      const notification = notif
+                                      notification.message = " has recieved your friend request"
+                                      console.log(notification)
+                                      removeNotification(notif.requesterID, notification)
+                                     }} 
+                                     className="rounded-lg w-24 h-8 flex items-center justify-center bg-red-400 text-gray-800 font-bold py-2 px-4">
+                                    Reject
+                                  </button>
+                                </div>
+                              </div>
+                            </li>
+                          );
+                        }
+                        if(notif.notificationType === "pendingFriendRequest"){
+                          console.log(notif.requesterUsername)
+                          if(activeUser.friends.includes(notif.username)){
+                              return;
+                          }
+                          else{
+                            return (
+                              <li className="my-4 text-slate-500 text-lg leading-relaxed" key={notif.requesterID}>
+                                <div className="bg-blue-200 rounded-md p-2 flex justify-between">
+                                  <div className="flex-auto text-left">
+                                    <p className="font-semibold block text-sm text-black">{notif.username}</p>
+                                    <p className="text-sm text-left">{notif.message}</p>
+                                  </div>
+                                  <div className="flex p-2">
+                                    <button className="rounded-lg w-l h-8 flex items-center justify-center bg-slate-400 text-gray-800 font-bold py-2 px-4">
+                                      Pending...
+                                    </button>
+                                  </div>
+                                </div>
+                              </li>
+                            );
+                          }
+                          
+                        }
+                        
                       })}
                     </ul>
                   </div>
@@ -239,7 +347,7 @@ export default function Friends() {
                                 </dd>
                               </div>
                               <div
-                                onClick={() => addFriend(user.id, user.username)}
+                                onClick={() => sendFriendRequest(user.id, user.username)}
                                 className="pt-2 hover:cursor-pointer hover:bg-"
                               >
                                 {!activeUser.friends.includes(user.username) && (

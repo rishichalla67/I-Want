@@ -22,130 +22,16 @@ export function FirestoreProvider({ children }) {
   const [allUsers, setAllUsers] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [allPortfolioIds, setAllPortfolioIds] = useState([]);
-  const [tickerList, setTickerList] = useState([]);
 
-  const dbPortfolioCollection = db.collection("portfolios");
-  const tickerListDocRef = doc(db, "portfolios", "tickerList");
   const dbUsersCollection = db.collection("users");
 
   useEffect(() => {
     if (allUsers.length === 0) {
       fetchAllUsers();
     }
-    if (allPortfolioIds.length === 0) {
-      getPortfolioIds();
-      getPortfolioTickerList();
-    }
 
     setLoading(false);
   }, []);
-
-  // CRYPTO PORTFOLIO FUNCTIONS
-
-  function createPortfolio(portfolioId, userId) {
-    dbPortfolioCollection.doc(portfolioId).set({
-      portfolioValueHistory: [],
-      positions: [],
-    });
-
-    dbUsersCollection
-      .doc(userId)
-      .update({
-        portfolioID: portfolioId,
-      })
-      .then(() => {
-        refreshUser(userId);
-      });
-  }
-
-  async function getPortfolioIds() {
-    const portfolios = await dbPortfolioCollection.get();
-    let ids = [];
-    portfolios.forEach((portfolio) => {
-      ids.push(portfolio.id);
-    });
-    setAllPortfolioIds(ids);
-  }
-
-  async function getPortfolioTickerList() {
-    const portfolio = await getDoc(tickerListDocRef);
-    if (portfolio.exists()) {
-      setTickerList(portfolio.data().tickerList);
-      return portfolio.data().tickerList;
-    }
-  }
-
-  async function addTicker(ticker) {
-    if (!tickerList[ticker.apiSymbol]) {
-      console.log(ticker);
-      await updateDoc(tickerListDocRef, {
-        [`tickerList.${ticker.apiSymbol}`]: ticker.displayName,
-      });
-    }
-  }
-
-  async function getPortfolio(portfolioId) {
-    const docRef = doc(db, "portfolios", portfolioId);
-    const portfolio = await getDoc(docRef);
-    if (portfolio.exists()) {
-      return portfolio.data();
-    }
-  }
-
-  async function addPosition(position, portfolioName) {
-    const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
-    await updateDoc(portfolioPositionsRef, {
-      positions: arrayUnion(position),
-    });
-  }
-
-  async function updatePosition(originalPosition, newPosition, portfolioName) {
-    const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
-    await updateDoc(portfolioPositionsRef, {
-      positions: arrayRemove(originalPosition),
-    });
-    await updateDoc(portfolioPositionsRef, {
-      positions: arrayUnion(newPosition),
-    });
-  }
-
-  async function removePositionFromFirebase(position, portfolioName) {
-    const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
-    await updateDoc(portfolioPositionsRef, {
-      positions: arrayRemove(position),
-    });
-  }
-
-  async function recordPortfolioValue(record, portfolioName) {
-    const portfolioPositionsRef = doc(db, "portfolios", portfolioName);
-    await updateDoc(portfolioPositionsRef, {
-      portfolioValueHistory: arrayUnion(record),
-    });
-  }
-
-  async function cleanupDuplicatesInHistorical(portfolioName) {
-    const docRef = doc(db, "portfolios", portfolioName);
-    const portfolio = await getDoc(docRef);
-    let duplicatePricePoints = [];
-    const portfolioValueHistory = portfolio.data().portfolioValueHistory;
-    if (portfolio.exists()) {
-      let prev = 0;
-      portfolioValueHistory.forEach((pricePoint) => {
-        if (prev === 0) {
-          prev = pricePoint.value;
-        } else if (prev === pricePoint.value) {
-          duplicatePricePoints.push(pricePoint);
-        }
-        prev = pricePoint.value;
-      });
-    }
-    if (duplicatePricePoints.length !== 0) {
-      await updateDoc(docRef, {
-        portfolioValueHistory: arrayRemove(...duplicatePricePoints),
-      });
-    }
-  }
 
   // USER FUNCTIONALITY
 
@@ -198,17 +84,6 @@ export function FirestoreProvider({ children }) {
     getActiveUser,
     notifications,
     refreshUser,
-    allPortfolioIds,
-    getPortfolio,
-    addPosition,
-    removePositionFromFirebase,
-    recordPortfolioValue,
-    cleanupDuplicatesInHistorical,
-    tickerList,
-    addTicker,
-    getPortfolioTickerList,
-    createPortfolio,
-    updatePosition,
     fetchAllUsers,
   };
 
