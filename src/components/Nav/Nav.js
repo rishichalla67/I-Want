@@ -1,8 +1,8 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
-import { useAuth } from "../contexts/AuthContext";
-import { useFirestore } from "../contexts/FirestoreContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useFirestore } from "../../contexts/FirestoreContext";
 import { useNavigate } from "react-router-dom";
 
 function classNames(...classes) {
@@ -68,28 +68,25 @@ export default function Nav() {
         <>
           <Nav />
           <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-            <div className="relative w-auto my-6 mx-auto max-w-3xl">
-              {/*content*/}
+            <div className="relative w-l my-6 mx-auto max-w-3xl">
               <div className="border-0 rounded-lg shadow-lg relative bg-white outline-none focus:outline-none grid place-items-center">
-                {/*header*/}
                 <div className=" justify-between p-5 border-b border-solid border-slate-200 rounded-t grid place-items-center">
                   <h3 className="text-3xl font-semibold">Notifications</h3>
                 </div>
-                <div>
-                  {activeUser.notifications.map((notif) => {
-                    return (
-                      <p key={notif.requesterID}>
-                        {notif.username}
-                        {notif.message}
-                      </p>
-                    );
-                  })}
+                <div className="p-6 flex-auto">
+                  <ul className="list-reset">
+                    {activeUser.notifications.map((notif) => {
+                      return (
+                        <li className="my-4 text-slate-500 text-lg leading-relaxed" key={notif.requesterID}>
+                          <div className="bg-blue-200 rounded-md p-2">
+                            <span className="font-semibold block text-center text-sm text-black">{notif.username}</span>
+                            <p className="text-sm text-center">{notif.message}</p>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-                <div className="relative p-6 flex-auto">
-                  <p className="my-4 text-slate-500 text-lg leading-relaxed"></p>
-                </div>
-                {/* </div> */}
-                {/*footer*/}
                 <div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
                   <button
                     className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
@@ -121,6 +118,7 @@ export default function Nav() {
                           <a
                             key={item.name}
                             href={item.href}
+                            hidden={item.name === "Friends" && !activeUser.firstName}
                             className={classNames(
                               item.current
                                 ? "bg-gray-900 text-white"
@@ -209,7 +207,11 @@ export default function Nav() {
 
               <Disclosure.Panel className="md:hidden">
                 <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                  {navigation.map((item) => (
+                {navigation.map((item) => {
+                  if (item.name === "Friends" && !activeUser.firstName) {
+                    return null;
+                  }
+                  return (
                     <Disclosure.Button
                       key={item.name}
                       as="a"
@@ -224,7 +226,8 @@ export default function Nav() {
                     >
                       {item.name}
                     </Disclosure.Button>
-                  ))}
+                  );
+                })}
                 </div>
                 <div className="pt-4 pb-3 border-t border-gray-700">
                   <div className="px-2 space-y-1">
@@ -240,9 +243,10 @@ export default function Nav() {
                       <Disclosure.Button
                         key={item.name}
                         as="a"
+                        hidden={!activeUser.firstName && item.name === "Friends" }
                         onClick={item.onClick}
                         href={item.href}
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-white hover:bg-gray-700 cursor-pointer"
+                        className="block px-3 py-2 rounded-md text-base font-medium text-sky-blue hover:text-white hover:bg-gray-700 cursor-pointer"
                       >
                         {item.name}
                       </Disclosure.Button>
@@ -261,7 +265,7 @@ export default function Nav() {
           <p>This allows you to be added as a friend</p>
           <div className="pt-2">
             <a
-              href="/edit-profile"
+              href="/profile"
               className="inline-flex justify-center w- py-2 px-4 border border-transparent shadow-sm text-med font-medium rounded-md text-white bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
               Edit Profile

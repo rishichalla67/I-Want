@@ -11,7 +11,11 @@ module.exports = {
       "98vh": "98vh",
       "90%": "90%",
     },
-    extend: {},
+    extend: {
+      screens: {
+        'non-mobile': { 'min': '640px' },
+      },
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };

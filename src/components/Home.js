@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Nav from "../components/Nav";
+import Nav from "./Nav/Nav";
 import { useFirestore } from "../contexts/FirestoreContext";
 
 export default function Home() {

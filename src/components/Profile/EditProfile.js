@@ -27,7 +27,6 @@ const EditProfile = (props) => {
     console.log(photoFile);
     const fileRef = ref(storage, "pfp" + "/" + activeUser.id);
     const uploadedPhoto = await uploadBytes(fileRef, photoFile);
-    console.log(uploadedPhoto);
     const url = await getDownloadURL(fileRef);
     setLoading(false);
     return url;
@@ -38,7 +37,7 @@ const EditProfile = (props) => {
       .collection("users")
       .doc(activeUser.id)
       .update({
-        photo: URL ? URL : activeUser.photo,
+        photo: URL !== "" ? URL : activeUser.photo,
         bio:
           bioRef.current.value !== "" ? bioRef.current.value : activeUser.bio,
         firstName:
@@ -81,12 +80,12 @@ const EditProfile = (props) => {
 
     setError("");
     setLoading(true);
+    updateUser("")
     uploadPhoto(uploadedPfp).then((url) => {
       console.log(url);
       setPhotoURL(url);
       setLoading(false);
       updateUser(url);
-      console.log(`PhotoURL: ${url}`);
       props.handleSave(url);
     });
   }

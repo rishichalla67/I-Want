@@ -9,8 +9,6 @@ import { FirestoreProvider } from "./contexts/FirestoreContext";
 import Profile from "./components/Profile/Profile";
 import ForgotPassword from "./components/Authentication/ForgotPassword";
 import Friends from "./components/Friends";
-import CryptoPortfolio from "./components/Portfolio/CryptoPortfolio";
-import { CryptoProvider } from "./contexts/CryptoContext";
 
 function App() {
   return (
@@ -18,7 +16,6 @@ function App() {
       <Router>
         <AuthProvider>
           <FirestoreProvider>
-            <CryptoProvider>
               <Routes>
                 {/* Protected Routes */}
                 <Route
@@ -46,20 +43,11 @@ function App() {
                     </PrivateRoute>
                   }
                 />
-                <Route
-                  path="/portfolio"
-                  element={
-                    <PrivateRoute>
-                      <CryptoPortfolio />
-                    </PrivateRoute>
-                  }
-                />
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
               </Routes>
-            </CryptoProvider>
           </FirestoreProvider>
         </AuthProvider>
       </Router>

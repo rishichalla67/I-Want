@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Nav from "../Nav";
+import Nav from "../Nav/Nav";
 import { useFirestore } from "../../contexts/FirestoreContext";
 import EditProfile from "./EditProfile";
 

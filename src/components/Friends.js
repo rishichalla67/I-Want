@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Nav from "./Nav";
+import Nav from "./Nav/Nav";
 import { useFirestore } from "../contexts/FirestoreContext";
 import { db } from "../firebase";
 import { arrayRemove, arrayUnion } from "firebase/firestore";
@@ -14,6 +14,7 @@ export default function Friends() {
   }, []);
 
   const addFriend = async (friendID, friendUsername) => {
+    //
     await db
       .collection("users")
       .doc(activeUser.id)
