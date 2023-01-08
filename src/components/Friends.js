@@ -81,6 +81,7 @@ export default function Friends() {
       <div className="pt-10 grid place-items-center">
         <div className="p-3 min-w-90% md:max-w-5xl bg-slate-100 rounded-lg border border-slate-500 shadow-lg items-center">
           <div className="relative flex-1 flex flex-col">
+            {error && error}
             <div className="bg-gray-100 px-2 py-1 border-b border-gray-200">
               <div className="flex justify-start items-center">
                 <button
@@ -112,7 +113,6 @@ export default function Friends() {
             <div className="flex-1 overflow-y-auto">
               {activeTab === 'my-friends' && (
                 <>
-                  {error && error}
                   {allUsers &&
                     allUsers.map((user) => {
                       if (
@@ -175,9 +175,22 @@ export default function Friends() {
                 </>
               )}
               {activeTab === 'pending-friends' && (
-                <div>
-                  {/* Pending Friends content goes here */}
-                </div>
+                <>
+                  <div className="p-6 flex-auto">
+                    <ul className="list-reset">
+                      {activeUser.notifications.map((notif) => {
+                        return (
+                          <li className="my-4 text-slate-500 text-lg leading-relaxed" key={notif.requesterID}>
+                            <div className="bg-blue-200 rounded-md p-2">
+                              <span className="font-semibold block text-center text-sm text-black">{notif.username}</span>
+                              <p className="text-sm text-center">{notif.message}</p>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </>
               )}
               {activeTab === 'add-friends' && (
                 <>
