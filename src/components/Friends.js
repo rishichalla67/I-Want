@@ -5,7 +5,7 @@ import { db } from "../firebase";
 import { arrayRemove, arrayUnion } from "firebase/firestore";
 import { Notification } from "../Classes/Notification";
 import { TabList, Tab, TabPanel } from 'react-tabs';
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
 
 
 export default function Friends() {

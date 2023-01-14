@@ -14,7 +14,7 @@ export default function Nav() {
   const { logout } = useAuth();
   const [error, setError] = useState();
   const [notifications, setNotifications] = useState();
-  const { activeUser, getActiveUser, allUsers } = useFirestore();
+  const { activeUser, getActiveUser, allUsers, dismissNotification } = useFirestore();
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export default function Nav() {
         <>
           <Nav />
           <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-            <div className="relative w-l my-6 mx-auto max-w-3xl">
+            <div className="relative w-l my-6 mx-auto max-w-75%">
               <div className="border-0 rounded-lg shadow-lg relative bg-white outline-none focus:outline-none grid place-items-center">
                 <div className=" justify-between p-5 border-b border-solid border-slate-200 rounded-t grid place-items-center">
                   <h3 className="text-3xl font-semibold">Notifications</h3>
@@ -77,9 +77,16 @@ export default function Nav() {
                     {activeUser.notifications.map((notif) => {
                       return (
                         <li className="my-4 text-slate-500 text-lg leading-relaxed" key={notif.requesterID}>
-                          <div className="bg-blue-200 rounded-md p-2">
-                            <span className="font-semibold block text-center text-sm text-black">{notif.username}</span>
-                            <p className="text-sm text-center">{notif.message}</p>
+                          <div className="bg-gradient-to-r from-sky-300 via-sky-400 to-sky-500 rounded-md p-2 flex">
+                            <span className="font-semibold block text-center text-sm text-black pr-1 pt-2">
+                              {notif.username}
+                            </span>
+                            <p className=" block text-sm text-center pt-2 text-black">
+                              {notif.message}
+                            </p>
+                            <button onClick={() => dismissNotification(notif).then(getActiveUser())} className="mx-3 p-1 hover:bg-red-600 hover:text-white text-slate-800 px-1 border-none hover:border hover:border-blue-700 rounded font-bold text-lg">
+                              Dismiss
+                            </button>
                           </div>
                         </li>
                       );

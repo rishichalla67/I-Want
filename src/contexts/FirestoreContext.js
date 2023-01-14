@@ -61,6 +61,17 @@ export function FirestoreProvider({ children }) {
     });
   }
 
+  async function dismissNotification(notificationToDismiss){
+    await db
+      .collection("users")
+      .doc(activeUser.id)
+      .update({
+        notifications: arrayRemove(
+          notificationToDismiss
+        ),
+      })
+  }
+
   async function refreshUser(id) {
     const docRef = doc(db, "users", id);
     const user = await getDoc(docRef);
@@ -85,6 +96,7 @@ export function FirestoreProvider({ children }) {
     notifications,
     refreshUser,
     fetchAllUsers,
+    dismissNotification
   };
 
   return (
